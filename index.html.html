@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Syaz English Quiz Hub 🎮</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI','Comic Sans MS',cursive,sans-serif; }
+
+body {
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:0.5rem;
+    transition: background 0.6s ease;
+    background: linear-gradient(145deg, #87CEEB 0%, #98D8C8 100%);
+    overflow-x:hidden;
+}
+
+/* Clouds */
+.cloud {
+    position:fixed; font-size:3rem; opacity:0.3;
+    pointer-events:none; z-index:0;
+    animation: floatCloud 25s infinite linear;
+}
+@keyframes floatCloud {
+    0% { transform: translateX(-100px); }
+    100% { transform: translateX(100vw); }
+}
+
+.game-container {
+    width:100%; max-width:920px;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(10px);
+    border-radius:30px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.25), 0 0 0 5px #ffffffcc;
+    padding:1.2rem;
+    position:relative; z-index:10;
+    transition: all 0.4s;
+    border:4px solid #f7d44a;
+}
+
+h1 {
+    font-size:2rem; text-align:center;
+    color:#3b2f8c;
+    text-shadow:3px 3px 0 #fddf6b, 6px 6px 0 rgba(0,0,0,0.1);
+    margin-bottom:0.3rem;
+}
+.subhead {
+    text-align:center; font-size:1.1rem; font-weight:bold;
+    color:#1e5f6b; background:#ffeeaa;
+    display:inline-block; padding:0.3rem 1.5rem;
+    border-radius:40px; margin:0 auto 0.8rem;
+    box-shadow:0 4px 0 #bbaa77; border:2px solid white;
+}
+
+/* START */
+.start-screen { display:flex; flex-direction:column; align-items:center; gap:1rem; padding:1rem 0; }
+.input-group { width:100%; max-width:480px; display:flex; flex-direction:column; gap:0.3rem; }
+.input-group label { font-weight:bold; color:#2d3e6b; font-size:1rem; margin-left:0.5rem; }
+.input-group input {
+    padding:0.9rem 1.3rem; border:3px solid #b0d9f0; border-radius:50px;
+    font-size:1rem; background:white; outline:none;
+    box-shadow:0 5px 0 #a0b9d0; transition:0.2s;
+}
+.input-group input:focus { border-color:#f7b731; box-shadow:0 5px 0 #c49b2b; }
+
+.btn {
+    background:#ffb347; border:none; border-radius:50px;
+    padding:0.9rem 2rem; font-size:1.3rem; font-weight:bold;
+    color:#2f2b1f; box-shadow:0 8px 0 #b36b1e, 0 5px 15px rgba(0,0,0,0.2);
+    cursor:pointer; transition:all 0.08s; border:2px solid #fff4d0;
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+}
+.btn:active { transform:translateY(5px); box-shadow:0 3px 0 #b36b1e; }
+
+/* QUIZ */
+.quiz-screen { display:none; flex-direction:column; gap:0.8rem; }
+
+.top-bar {
+    display:flex; flex-wrap:wrap; justify-content:space-between;
+    align-items:center; background:#ffffffdd;
+    padding:0.6rem 1rem; border-radius:30px;
+    border:3px solid #f7d44a; gap:0.4rem;
+}
+.game-badge {
+    padding:0.4rem 1rem; border-radius:25px; font-weight:bold;
+    color:#1d3557; font-size:0.95rem;
+    display:flex; align-items:center; gap:6px;
+}
+.progress-container {
+    flex:1; min-width:120px; height:18px; background:#d9e9fa;
+    border-radius:20px; overflow:hidden; border:2px solid white;
+}
+.progress-fill { height:100%; width:0%; border-radius:20px; transition:width 0.4s; }
+.question-counter {
+    font-weight:bold; background:#f5e56b; padding:0.3rem 0.9rem;
+    border-radius:25px; font-size:0.95rem; color:#1d3557;
+    border:2px solid white;
+}
+
+/* GAME ARENA */
+.game-arena {
+    position:relative;
+    min-height:400px;
+    border-radius:25px;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+}
+
+/* ZONE 1: MARIO */
+.zone-1 .game-arena { background: linear-gradient(180deg,#87CEEB 0%,#87CEEB 55%,#8B4513 55%,#8B4513 100%); }
+.zone-1 .ground { position:absolute; bottom:0; width:100%; height:45%; background:#8B4513; border-top:8px solid #228B22; }
+.zone-1 .ground::before { content:'🌱🌱🌱🌱🌱🌱🌱🌱🌱🌱'; position:absolute; top:-20px; font-size:1.5rem; letter-spacing:15px; width:100%; text-align:center; }
+.mario { position:absolute; bottom:32%; left:20px; font-size:3rem; transition:all 0.7s cubic-bezier(0.68,-0.55,0.265,1.55); z-index:5; }
+.mario.jump { animation: marioJump 0.7s; }
+@keyframes marioJump {
+    0% { transform:translateY(0) rotate(0); }
+    40% { transform:translateY(-160px) rotate(-15deg); }
+    70% { transform:translateY(-160px) rotate(10deg); }
+    100% { transform:translateY(0) rotate(0); }
+}
+.coin { position:absolute; font-size:1.8rem; animation: spinCoin 1s infinite linear; }
+@keyframes spinCoin { 0%{transform:rotateY(0);} 100%{transform:rotateY(360deg);} }
+
+.zone-1 .question-bubble {
+    background:#fff; border:4px solid #228B22;
+    border-radius:20px; padding:0.8rem 1rem;
+    margin:0.5rem; font-size:1.1rem; font-weight:bold;
+    color:#1e3b5c; text-align:center;
+    box-shadow:0 6px 0 #1a5c1a;
+    position:relative; z-index:4;
+}
+.zone-1 .question-bubble::after {
+    content:'❓'; position:absolute; top:-28px; left:50%;
+    transform:translateX(-50%); font-size:2rem;
+    animation: bob 1s infinite alternate;
+}
+@keyframes bob { 0%{transform:translateX(-50%) translateY(0);} 100%{transform:translateX(-50%) translateY(-5px);} }
+
+.zone-1 .options { display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; padding:0.5rem; z-index:4; }
+.zone-1 .option-btn {
+    background:#ffcc00; border:4px solid #8B4513;
+    border-radius:12px; padding:0.7rem;
+    font-size:1rem; font-weight:bold; color:#3b2f1f;
+    cursor:pointer; transition:0.15s;
+    box-shadow:0 5px 0 #5c2e0a;
+    display:flex; align-items:center; gap:6px;
+}
+.zone-1 .option-btn:hover { background:#ffe066; transform:translateY(-3px); }
+.zone-1 .option-btn:active { transform:translateY(3px) scale(0.97); box-shadow:0 2px 0 #5c2e0a; }
+.zone-1 .option-btn.picked { background:#ffab40; border-color:#ff6f00; animation: pickPulse 0.4s; }
+@keyframes pickPulse { 0%{transform:scale(1);} 50%{transform:scale(1.08);} 100%{transform:scale(1);} }
+.zone-1 .option-letter {
+    background:#8B4513; color:#fff; width:30px; height:30px;
+    display:flex; align-items:center; justify-content:center;
+    border-radius:50%; font-weight:900; flex-shrink:0;
+}
+
+/* ZONE 2: SPACE SHOOTER */
+.zone-2 .game-arena { background: radial-gradient(circle at 50% 50%, #1a1a3e 0%, #0a0a1f 100%); }
+.zone-2 .stars { position:absolute; width:100%; height:100%; overflow:hidden; }
+.zone-2 .stars::before {
+    content:'⭐ ✨ ⭐ ✨ ⭐ ✨ ⭐ ✨ ⭐ ✨ ⭐ ✨ ⭐ ✨';
+    position:absolute; top:5%; left:0; font-size:1.2rem; opacity:0.7;
+    animation: twinkle 2s infinite alternate; width:200%; text-align:center;
+}
+.zone-2 .stars::after {
+    content:'✨ ⭐ ✨ ⭐ ✨ ⭐ ✨ ⭐ ✨ ⭐ ✨ ⭐ ✨ ⭐';
+    position:absolute; top:40%; left:-50%; font-size:1rem; opacity:0.5;
+    animation: twinkle 3s infinite alternate; width:200%; text-align:center;
+}
+@keyframes twinkle { 0%{opacity:0.3;} 100%{opacity:1;} }
+.rocket { position:absolute; bottom:15%; left:50%; transform:translateX(-50%); font-size:2.5rem; z-index:5; transition:all 0.5s; }
+.rocket.shoot { animation: rocketShoot 0.7s; }
+@keyframes rocketShoot {
+    0% { transform:translateX(-50%) translateY(0) rotate(0); }
+    50% { transform:translateX(-50%) translateY(-200px) rotate(-20deg) scale(1.2); }
+    100% { transform:translateX(-50%) translateY(0) rotate(0); }
+}
+.laser { position:absolute; bottom:20%; left:50%; width:6px; height:0; background:linear-gradient(180deg,#ff1744,#ff8a80); border-radius:3px; transform:translateX(-50%); z-index:4; }
+.laser.fire { animation: laserFire 0.5s; }
+@keyframes laserFire {
+    0% { height:0; opacity:1; }
+    50% { height:200px; opacity:1; }
+    100% { height:200px; opacity:0; }
+}
+
+.zone-2 .question-bubble {
+    background:#2a2a5e; border:3px solid #7c4dff;
+    border-radius:15px; padding:0.8rem 1rem;
+    margin:0.5rem; font-size:1.1rem; font-weight:bold;
+    color:#e0c3fc; text-align:center;
+    box-shadow:0 0 20px #7c4dff66;
+    position:relative; z-index:4;
+}
+.zone-2 .options { display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; padding:0.5rem; z-index:4; }
+.zone-2 .option-btn {
+    background: linear-gradient(135deg,#4a4a8e,#2a2a5e);
+    border:3px solid #7c4dff; border-radius:15px;
+    padding:0.7rem; font-size:1rem; font-weight:bold;
+    color:#e0c3fc; cursor:pointer; transition:0.15s;
+    box-shadow:0 0 12px #7c4dff88;
+    display:flex; align-items:center; gap:6px;
+}
+.zone-2 .option-btn:hover { background: linear-gradient(135deg,#6a6abe,#4a4a8e); transform:scale(1.03); }
+.zone-2 .option-btn:active { transform:scale(0.97); }
+.zone-2 .option-btn.picked { background: linear-gradient(135deg,#b388ff,#7c4dff); color:#fff; border-color:#fff; animation: pickPulse 0.4s; }
+.zone-2 .option-letter {
+    background:#7c4dff; color:#fff; width:30px; height:30px;
+    display:flex; align-items:center; justify-content:center;
+    border-radius:8px; font-weight:900; flex-shrink:0;
+}
+
+/* ZONE 3: BALLOON POP */
+.zone-3 .game-arena { background: linear-gradient(180deg,#87CEEB 0%,#E0F7FA 100%); }
+.balloon-deco { position:absolute; font-size:3rem; transition:0.2s; z-index:3; animation: floatBalloon 3s infinite alternate; }
+@keyframes floatBalloon {
+    0% { transform:translateY(0) rotate(-5deg); }
+    100% { transform:translateY(-25px) rotate(5deg); }
+}
+.zone-3 .question-bubble {
+    background:#fff9c4; border:4px dashed #ffb347;
+    border-radius:20px; padding:0.8rem 1rem;
+    margin:0.5rem; font-size:1.1rem; font-weight:bold;
+    color:#5d4037; text-align:center;
+    box-shadow:0 5px 0 #d48c2a;
+    position:relative; z-index:4;
+}
+.zone-3 .options { display:flex; flex-direction:column; gap:0.4rem; padding:0.5rem; z-index:4; }
+.zone-3 .option-btn {
+    background:#fff; border:4px solid #ffb347;
+    border-radius:15px; padding:0.7rem 1rem;
+    font-size:1rem; font-weight:bold; color:#5d4037;
+    cursor:pointer; transition:0.15s;
+    box-shadow:0 5px 0 #d48c2a;
+    display:flex; align-items:center; gap:8px;
+}
+.zone-3 .option-btn::before { content:'🎈'; font-size:1.2rem; transition:0.2s; }
+.zone-3 .option-btn:hover { background:#fff3d6; transform:translateX(5px); }
+.zone-3 .option-btn:active { transform:translateX(5px) scale(0.97); }
+.zone-3 .option-btn.picked { background:#ffe082; border-color:#e67e22; box-shadow:0 5px 0 #a85a1a; animation: pickPulse 0.4s; }
+.zone-3 .option-btn.picked::before { content:'💥'; }
+.zone-3 .option-letter {
+    background:#ffb347; color:#fff; width:30px; height:30px;
+    display:flex; align-items:center; justify-content:center;
+    border-radius:50%; font-weight:900; flex-shrink:0;
+}
+
+/* ZONE 4: CAR RACE */
+.zone-4 .game-arena { background: linear-gradient(180deg,#4CAF50 0%,#388E3C 35%,#2E7D32 35%,#1B5E20 100%); }
+.zone-4 .road { position:absolute; bottom:0; width:100%; height:50%; background:#424242; border-top:6px solid #FFEB3B; }
+.zone-4 .road::before {
+    content:'▬ ▬ ▬ ▬ ▬ ▬ ▬ ▬ ▬ ▬ ▬ ▬ ▬ ▬';
+    position:absolute; top:45%; left:0; color:#FFEB3B;
+    font-size:1rem; letter-spacing:15px; width:100%; text-align:center;
+    animation: roadMove 2s infinite linear;
+}
+@keyframes roadMove { 0%{transform:translateX(0);} 100%{transform:translateX(-30px);} }
+.car { position:absolute; bottom:8%; left:15%; font-size:2.8rem; z-index:5; transition:all 0.6s ease; }
+.car.drive { animation: carDrive 0.8s; }
+@keyframes carDrive {
+    0% { transform:translateX(0) scale(1); }
+    40% { transform:translateX(150px) scale(1.1) rotate(-5deg); }
+    70% { transform:translateX(250px) scale(1.1) rotate(5deg); }
+    100% { transform:translateX(0) scale(1); }
+}
+.smoke { position:absolute; font-size:1.5rem; opacity:0; }
+.smoke.puff { animation: smokePuff 0.8s; }
+@keyframes smokePuff {
+    0% { opacity:0.8; transform:scale(0.5); }
+    100% { opacity:0; transform:scale(1.5) translateY(-30px); }
+}
+.zone-4 .question-bubble {
+    background:#fff; border:4px solid #FFEB3B;
+    border-radius:15px; padding:0.8rem 1rem;
+    margin:0.5rem; font-size:1.1rem; font-weight:bold;
+    color:#1B5E20; text-align:center;
+    box-shadow:0 6px 0 #F9A825;
+    position:relative; z-index:4;
+}
+.zone-4 .options { display:flex; flex-direction:column; gap:0.4rem; padding:0.5rem; z-index:4; }
+.zone-4 .option-btn {
+    background:#fff; border:3px solid #4CAF50;
+    border-radius:10px; padding:0.7rem 1rem;
+    font-size:1rem; font-weight:bold; color:#1B5E20;
+    cursor:pointer; transition:0.15s;
+    box-shadow:0 5px 0 #2E7D32;
+    display:flex; align-items:center; gap:8px;
+}
+.zone-4 .option-btn:hover { background:#e8f5e9; transform:translateX(6px); }
+.zone-4 .option-btn:active { transform:translateX(6px) scale(0.97); }
+.zone-4 .option-btn.picked { background:#a5d6a7; border-color:#1B5E20; box-shadow:0 5px 0 #0d3d0d; animation: pickPulse 0.4s; }
+.zone-4 .option-letter {
+    background:#4CAF50; color:#fff; width:30px; height:30px;
+    display:flex; align-items:center; justify-content:center;
+    border-radius:6px; font-weight:900; flex-shrink:0;
+}
+
+/* ZONE 5: FRUIT NINJA */
+.zone-5 .game-arena { background: linear-gradient(180deg,#1a0a0a 0%,#3d0a0a 100%); overflow:hidden; }
+.fruit-fly { position:absolute; font-size:2.5rem; z-index:3; animation: flyFruit 3s infinite linear; }
+@keyframes flyFruit {
+    0% { transform:translateY(0) rotate(0); }
+    50% { transform:translateY(-100px) rotate(180deg); }
+    100% { transform:translateY(0) rotate(360deg); }
+}
+.zone-5 .question-bubble {
+    background:#fff; border:4px solid #e57373;
+    border-radius:15px; padding:0.8rem 1rem;
+    margin:0.5rem; font-size:1.1rem; font-weight:bold;
+    color:#b71c1c; text-align:center;
+    box-shadow:0 0 20px #e5737388;
+    position:relative; z-index:4;
+}
+.ninja-blade {
+    position:absolute; top:50%; left:50%;
+    font-size:4rem; transform:translate(-50%,-50%) rotate(0deg);
+    z-index:6; pointer-events:none; opacity:0;
+}
+.ninja-blade.slash { animation: bladeSlash 0.6s; }
+@keyframes bladeSlash {
+    0% { opacity:1; transform:translate(-50%,-50%) rotate(0deg) scale(0.3); }
+    50% { opacity:1; transform:translate(-50%,-50%) rotate(180deg) scale(1.8); }
+    100% { opacity:0; transform:translate(-50%,-50%) rotate(360deg) scale(0.3); }
+}
+.zone-5 .options { display:flex; flex-direction:column; gap:0.4rem; padding:0.5rem; z-index:4; }
+.zone-5 .option-btn {
+    background:#2d0a0a; border:3px solid #e57373;
+    border-radius:8px; padding:0.7rem 1rem;
+    font-size:1rem; font-weight:bold; color:#ffcdd2;
+    cursor:pointer; transition:0.15s;
+    box-shadow:0 5px 0 #8f1d1d;
+    display:flex; align-items:center; gap:8px;
+}
+.zone-5 .option-btn::before { content:'🍉'; font-size:1.2rem; transition:0.2s; }
+.zone-5 .option-btn:hover { background:#4a0a0a; transform:scale(1.02); }
+.zone-5 .option-btn:active { transform:scale(0.97); }
+.zone-5 .option-btn.picked { background:#b71c1c; border-color:#fff; box-shadow:0 5px 0 #5c0000; animation: pickPulse 0.4s; }
+.zone-5 .option-btn.picked::before { content:'🔪'; }
+.zone-5 .option-letter {
+    background:#e57373; color:#fff; width:30px; height:30px;
+    display:flex; align-items:center; justify-content:center;
+    border-radius:6px; font-weight:900; flex-shrink:0;
+}
+
+/* RESULT */
+.result-screen { display:none; flex-direction:column; align-items:center; gap:1rem; text-align:center; padding:1rem 0; }
+.score-display {
+    font-size:3rem; font-weight:900; color:#2c3e50;
+    background:#f9e076; border-radius:80px;
+    padding:0.8rem 2.5rem;
+    box-shadow:0 12px 0 #b68b2c, 0 0 0 6px white;
+    border:4px dashed #fff;
+    animation: scorePop 0.7s cubic-bezier(0.68,-0.55,0.265,1.55);
+}
+@keyframes scorePop { 0%{transform:scale(0);} 100%{transform:scale(1);} }
+.feedback-message {
+    font-size:1.5rem; font-weight:bold; color:#1e5f6b;
+    background:white; padding:0.6rem 1.5rem;
+    border-radius:40px; box-shadow:0 6px 0 #b0c4d9;
+}
+.restart-btn { background:#b0e57c; box-shadow:0 8px 0 #6a994e; color:#283618; }
+.review-section {
+    background:#f8f9fa; border-radius:30px; padding:1rem;
+    width:100%; max-height:260px; overflow-y:auto;
+    border:3px solid #aac9e0; font-size:0.85rem; text-align:left;
+}
+.review-item { padding:0.3rem 0.5rem; border-bottom:1px dashed #ccc; display:flex; gap:6px; flex-wrap:wrap; }
+.review-correct { color:#1e6b3b; font-weight:bold; }
+.review-wrong { color:#b33b3b; font-weight:bold; }
+
+/* Confetti */
+.confetti { position:fixed; top:-20px; font-size:1.8rem; animation:fall linear forwards; z-index:999; pointer-events:none; }
+@keyframes fall { to { transform:translateY(100vh) rotate(360deg); opacity:0; } }
+
+/* Countdown overlay */
+.countdown {
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    font-size:6rem; font-weight:900; color:#fff;
+    text-shadow:0 0 30px #000, 0 0 60px #f7b731;
+    z-index:100; animation: countPop 1s;
+    pointer-events:none;
+}
+@keyframes countPop {
+    0% { transform:translate(-50%,-50%) scale(0); opacity:0; }
+    50% { transform:translate(-50%,-50%) scale(1.3); opacity:1; }
+    100% { transform:translate(-50%,-50%) scale(1); opacity:0; }
+}
+
+/* Responsive */
+@media (max-width:600px) {
+    h1 { font-size:1.4rem; }
+    .subhead { font-size:0.9rem; padding:0.2rem 1rem; }
+    .game-arena { min-height:440px; }
+    .zone-1 .question-bubble, .zone-2 .question-bubble, .zone-3 .question-bubble,
+    .zone-4 .question-bubble, .zone-5 .question-bubble { font-size:0.95rem; padding:0.6rem; }
+    .zone-1 .option-btn, .zone-2 .option-btn, .zone-3 .option-btn,
+    .zone-4 .option-btn, .zone-5 .option-btn { font-size:0.85rem; padding:0.5rem; }
+    .option-letter { width:26px; height:26px; font-size:0.85rem; }
+    .score-display { font-size:2rem; padding:0.6rem 1.5rem; }
+    .mario, .rocket, .car { font-size:2rem; }
+    .balloon-deco { font-size:2.2rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="cloud" style="top:5%;">☁️</div>
+<div class="cloud" style="top:20%;animation-delay:8s;">☁️</div>
+<div class="cloud" style="top:60%;animation-delay:15s;">☁️</div>
+
+<div class="game-container">
+    <h1>Syaz English Quiz Hub 🎮</h1>
+    <div style="text-align:center;"><span class="subhead">Year 4 Diagnostic Test</span></div>
+
+    <!-- START -->
+    <div id="startScreen" class="start-screen">
+        <div class="input-group">
+            <label>👤 Full Name</label>
+            <input type="text" id="studentName" placeholder="e.g. Aisyah binti Ahmad">
+        </div>
+        <div class="input-group">
+            <label>🏫 Class</label>
+            <input type="text" id="studentClass" placeholder="e.g. 4 Bestari">
+        </div>
+        <button class="btn" id="startBtn">▶ START GAME</button>
+        <p style="color:#3b5e7a;font-size:0.9rem;">🎮 50 soalan · 5 mini-games auto-advance!</p>
+    </div>
+
+    <!-- QUIZ -->
+    <div id="quizScreen" class="quiz-screen">
+        <div class="top-bar">
+            <div class="game-badge" id="gameBadge">🍄 Mario Jump</div>
+            <div class="progress-container">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="question-counter" id="questionCounter">1 / 50</div>
+        </div>
+
+        <div class="game-arena" id="gameArena"></div>
+    </div>
+
+    <!-- RESULT -->
+    <div id="resultScreen" class="result-screen">
+        <div class="score-display" id="finalScore">0 / 50</div>
+        <div class="feedback-message" id="feedbackMsg"></div>
+        <div class="review-section" id="reviewSection"></div>
+        <button class="btn restart-btn" id="restartBtn">🔄 Play Again</button>
+    </div>
+</div>
+
+<script>
+(function() {
+    // ---- 50 QUESTIONS ----
+    const questions = [
+        { q:"1. The ______ is open on Saturday.", options:["shop","tree","house","dog"], answer:0 },
+        { q:"2. I borrowed a ______ from library.", options:["bicycle","book","pan","shirt"], answer:1 },
+        { q:"3. We play volleyball at the ______.", options:["workshop","house","court","gym"], answer:2 },
+        { q:"4. The policeman catches a ______.", options:["mother","father","criminal","teacher"], answer:2 },
+        { q:"5. He sleeps on his ______.", options:["floor","table","motorcycle","bed"], answer:3 },
+        { q:"6. Ali is handsome. ______ lives in Penang.", options:["He","She","I","You"], answer:0 },
+        { q:"7. Tim and Jim are brothers. ______ are good at sports.", options:["We","They","He","She"], answer:1 },
+        { q:"8. Lisa is a teacher. ______ teaches at SK Muanad.", options:["I","You","She","We"], answer:2 },
+        { q:"9. My brother and I love to play volleyball. ______ play volleyball on Sunday.", options:["They","He","You","We"], answer:3 },
+        { q:"10. I have a cat. ______ sleeps on the sofa.", options:["We","It","He","They"], answer:1 },
+        { q:"11. I cannot lift this box. It is ______.", options:["heavy","ugly","awesome","dry"], answer:0 },
+        { q:"12. Tiger is a ______ animal.", options:["tame","wild","dirty","hideous"], answer:1 },
+        { q:"13. We can trust an ______ man.", options:["handsome","tall","honest","fat"], answer:2 },
+        { q:"14. It is summer. It is very ______.", options:["cold","calm","fresh","hot"], answer:3 },
+        { q:"15. I wash the ______ cups.", options:["dirty","broken","bright","old"], answer:0 },
+        { q:"16. He ______ the milk.", options:["drinks","eats","washes","kicks"], answer:0 },
+        { q:"17. The dog is ______.", options:["singing","barking","working","counting"], answer:1 },
+        { q:"18. They ______ football.", options:["write","see","play","plan"], answer:2 },
+        { q:"19. I ______ TV.", options:["see","look","watch","gaze"], answer:2 },
+        { q:"20. Johan ______ his bicycle.", options:["rides","drives","flies","throws"], answer:0 },
+        { q:"21. Sabri runs ______.", options:["quickly","gracefully","simply","lovely"], answer:0 },
+        { q:"22. Amir sits ______ in the library.", options:["heavily","silently","smoothly","quickly"], answer:1 },
+        { q:"23. Siti plays ______ with her doll.", options:["sadly","angrily","happily","anxiously"], answer:2 },
+        { q:"24. My dad drives his car ______.", options:["beautifully","perfectly","crazily","carefully"], answer:3 },
+        { q:"25. My sister dances ______.", options:["gracefully","quickly","throughly","mindfully"], answer:0 },
+        { q:"26. The cat is ______ the tree.", options:["on","in","above","between"], answer:0 },
+        { q:"27. The mouse is hiding ______ a can.", options:["at","in","under","next to"], answer:1 },
+        { q:"28. He swims ______ the river.", options:["across","on","in","between"], answer:0 },
+        { q:"29. The birds fly ______ the hills.", options:["on","at","through","over"], answer:3 },
+        { q:"30. He walks ______ the beach.", options:["along","across","next to","near"], answer:0 },
+        { q:"31. Sam is polite, ______ everyone likes him.", options:["and","but","so","because"], answer:2 },
+        { q:"32. I like cake, ______ my brother likes candy.", options:["and","but","so","because"], answer:1 },
+        { q:"33. His shirt is wet ______ it is raining.", options:["and","but","so","because"], answer:3 },
+        { q:"34. She is hungry ______ weak.", options:["and","but","so","because"], answer:0 },
+        { q:"35. The baby is crying ______ she is hungry.", options:["and","but","so","because"], answer:3 },
+        { q:"36. ______! It is a big house.", options:["Wow","Euwu","Oh","Hush"], answer:0 },
+        { q:"37. ______! I dropped my food.", options:["Hey","Oops","Shh","Yahoo"], answer:1 },
+        { q:"38. ______! we are in the library.", options:["Euwu","Wow","Shh","Oh"], answer:2 },
+        { q:"39. ______! It hurts.", options:["Oops","Wow","Yippie","Ouch"], answer:3 },
+        { q:"40. ______! nice to meet you.", options:["Hi","Ouch","Oops","Oh"], answer:0 },
+        { q:"41. My friend ______ me now.", options:["helps","help","helped","is helping"], answer:3 },
+        { q:"42. He ______ to the beach every week.", options:["go","goes","went","is going"], answer:1 },
+        { q:"43. I ______ looking at the mirror right now.", options:["am","is","are","were"], answer:0 },
+        { q:"44. Ali and Abu ______ going to school today.", options:["is","was","were","are"], answer:3 },
+        { q:"45. Jihan ______ an apple every day.", options:["eats","eat","ate","eaten"], answer:0 },
+        { q:"46. They ______ a movie yesterday.", options:["watched","watch","watches","is watching"], answer:0 },
+        { q:"47. Jeff ______ a cake last week.", options:["bake","bakes","baked","is baking"], answer:2 },
+        { q:"48. She ______ last night.", options:["cry","cries","cried","is crying"], answer:2 },
+        { q:"49. We ______ a new bicycle last year.", options:["buy","buys","are buying","bought"], answer:3 },
+        { q:"50. Amar ______ pasta last Monday.", options:["cooked","cooks","are cooking","is cooking"], answer:0 }
+    ];
+
+    // ---- ZONES ----
+    const zones = [
+        { name:"🍄 Mario Jump",    icon:"🍄", cls:"zone-1", bg:"linear-gradient(145deg,#87CEEB,#98D8C8)" },
+        { name:"🚀 Space Shooter", icon:"🚀", cls:"zone-2", bg:"linear-gradient(145deg,#1a1a3e,#3d0a4a)" },
+        { name:"🎈 Balloon Pop",   icon:"🎈", cls:"zone-3", bg:"linear-gradient(145deg,#87CEEB,#E0F7FA)" },
+        { name:"🏎️ Car Race",      icon:"🏎️", cls:"zone-4", bg:"linear-gradient(145deg,#4CAF50,#2E7D32)" },
+        { name:"🥷 Fruit Ninja",   icon:"🥷", cls:"zone-5", bg:"linear-gradient(145deg,#1a0a0a,#3d0a0a)" }
+    ];
+
+    // ---- STATE ----
+    let currentIndex = 0;
+    let userAnswers = new Array(50).fill(null);
+    let quizStarted = false;
+    let locked = false; // to prevent double-click
+
+    // ---- DOM ----
+    const startScreen = document.getElementById('startScreen');
+    const quizScreen = document.getElementById('quizScreen');
+    const resultScreen = document.getElementById('resultScreen');
+    const startBtn = document.getElementById('startBtn');
+    const studentNameInput = document.getElementById('studentName');
+    const studentClassInput = document.getElementById('studentClass');
+    const gameArena = document.getElementById('gameArena');
+    const progressFill = document.getElementById('progressFill');
+    const questionCounter = document.getElementById('questionCounter');
+    const gameBadge = document.getElementById('gameBadge');
+    const finalScore = document.getElementById('finalScore');
+    const feedbackMsg = document.getElementById('feedbackMsg');
+    const reviewSection = document.getElementById('reviewSection');
+    const restartBtn = document.getElementById('restartBtn');
+
+    // ---- APPLY ZONE ----
+    function applyZoneTheme(index) {
+        const zIdx = Math.min(Math.floor(index / 10), 4);
+        const zone = zones[zIdx];
+        document.body.classList.remove('zone-1','zone-2','zone-3','zone-4','zone-5');
+        document.body.classList.add(zone.cls);
+        document.body.style.background = zone.bg;
+        gameBadge.textContent = `${zone.icon} ${zone.name}`;
+    }
+
+    // ---- RENDER ----
+    function renderQuestion(index) {
+        locked = false;
+        const q = questions[index];
+        const zIdx = Math.min(Math.floor(index / 10), 4);
+        let arenaHTML = '';
+
+        if (zIdx === 0) {
+            // MARIO
+            let coins = '';
+            for (let i = 0; i < 5; i++) {
+                coins += `<div class="coin" style="top:${15 + Math.random()*20}%; left:${10 + i*18}%;">🪙</div>`;
+            }
+            arenaHTML = `
+                <div class="ground"></div>
+                ${coins}
+                <div class="mario" id="marioChar">🍄</div>
+                <div class="question-bubble">${q.q}</div>
+                <div class="options" id="optionsBox"></div>
+            `;
+        } else if (zIdx === 1) {
+            // SPACE
+            arenaHTML = `
+                <div class="stars"></div>
+                <div class="laser" id="laser"></div>
+                <div class="rocket" id="rocketChar">🚀</div>
+                <div class="question-bubble">${q.q}</div>
+                <div class="options" id="optionsBox"></div>
+            `;
+        } else if (zIdx === 2) {
+            // BALLOON
+            arenaHTML = `
+                <div class="balloon-deco" style="top:3%;left:8%;">🎈</div>
+                <div class="balloon-deco" style="top:6%;left:32%;animation-delay:0.5s;">🎈</div>
+                <div class="balloon-deco" style="top:2%;left:56%;animation-delay:1s;">🎈</div>
+                <div class="balloon-deco" style="top:8%;left:82%;animation-delay:1.5s;">🎈</div>
+                <div class="question-bubble">${q.q}</div>
+                <div class="options" id="optionsBox"></div>
+            `;
+        } else if (zIdx === 3) {
+            // CAR
+            arenaHTML = `
+                <div class="road"></div>
+                <div class="car" id="carChar">🏎️</div>
+                <div class="question-bubble">${q.q}</div>
+                <div class="options" id="optionsBox"></div>
+            `;
+        } else {
+            // NINJA
+            arenaHTML = `
+                <div class="fruit-fly" style="top:5%;left:15%;">🍉</div>
+                <div class="fruit-fly" style="top:8%;left:45%;animation-delay:0.5s;">🍊</div>
+                <div class="fruit-fly" style="top:4%;left:75%;animation-delay:1s;">🍎</div>
+                <div class="ninja-blade" id="ninjaBlade">⚔️</div>
+                <div class="question-bubble">${q.q}</div>
+                <div class="options" id="optionsBox"></div>
+            `;
+        }
+
+        gameArena.innerHTML = arenaHTML;
+
+        // Options
+        const optionsBox = document.getElementById('optionsBox');
+        const letters = ['A','B','C','D'];
+        q.options.forEach((opt, i) => {
+            const btn = document.createElement('button');
+            btn.classList.add('option-btn');
+            if (userAnswers[index] === i) btn.classList.add('picked');
+            btn.innerHTML = `<span class="option-letter">${letters[i]}</span> ${opt}`;
+            btn.addEventListener('click', () => selectOption(index, i, btn));
+            optionsBox.appendChild(btn);
+        });
+
+        // Progress
+        const answered = userAnswers.filter(a => a !== null).length;
+        progressFill.style.width = (answered / 50) * 100 + '%';
+        questionCounter.textContent = `${index + 1} / 50`;
+
+        applyZoneTheme(index);
+    }
+
+    // ---- SELECT (auto-advance) ----
+    function selectOption(qIndex, optIndex, btnEl) {
+        if (locked || !quizStarted) return;
+        locked = true;
+
+        // Save answer
+        userAnswers[qIndex] = optIndex;
+
+        // Mark button as picked (no red/green, just neutral highlight)
+        btnEl.classList.add('picked');
+        // disable all buttons
+        document.querySelectorAll('.option-btn').forEach(b => b.style.pointerEvents = 'none');
+
+        // Animate character per zone
+        const zIdx = Math.min(Math.floor(qIndex / 10), 4);
+
+        if (zIdx === 0) {
+            const mario = document.getElementById('marioChar');
+            if (mario) {
+                mario.classList.add('jump');
+                // Move mario horizontally toward the chosen option
+                const arenaRect = gameArena.getBoundingClientRect();
+                const btnRect = btnEl.getBoundingClientRect();
+                const targetX = btnRect.left - arenaRect.left + btnRect.width / 2 - 25;
+                mario.style.left = Math.max(10, Math.min(targetX, arenaRect.width - 60)) + 'px';
+            }
+        } else if (zIdx === 1) {
+            const rocket = document.getElementById('rocketChar');
+            const laser = document.getElementById('laser');
+            if (rocket) {
+                rocket.classList.add('shoot');
+            }
+            if (laser) {
+                laser.classList.add('fire');
+            }
+        } else if (zIdx === 2) {
+            // little bounce on picked balloon
+            btnEl.style.animation = 'pickPulse 0.5s';
+        } else if (zIdx === 3) {
+            const car = document.getElementById('carChar');
+            if (car) {
+                car.classList.add('drive');
+            }
+        } else {
+            const blade = document.getElementById('ninjaBlade');
+            if (blade) {
+                blade.classList.add('slash');
+            }
+        }
+
+        // Wait for animation then auto-advance
+        setTimeout(() => {
+            if (currentIndex < 49) {
+                currentIndex++;
+                renderQuestion(currentIndex);
+            } else {
+                // Last question -> auto submit
+                submitQuiz();
+            }
+        }, 900);
+    }
+
+    // ---- START ----
+    startBtn.addEventListener('click', () => {
+        const name = studentNameInput.value.trim();
+        const cls = studentClassInput.value.trim();
+        if (!name || !cls) { alert('Please enter your full name and class.'); return; }
+        startScreen.style.display = 'none';
+        quizScreen.style.display = 'flex';
+        resultScreen.style.display = 'none';
+        quizStarted = true;
+        userAnswers = new Array(50).fill(null);
+        currentIndex = 0;
+        renderQuestion(0);
+    });
+
+    // ---- SUBMIT ----
+    function submitQuiz() {
+        quizStarted = false;
+        let score = 0;
+        questions.forEach((q, idx) => { if (userAnswers[idx] === q.answer) score++; });
+
+        quizScreen.style.display = 'none';
+        resultScreen.style.display = 'flex';
+        finalScore.textContent = `${score} / 50`;
+        const pct = (score / 50) * 100;
+        let msg = '';
+        if (pct >= 80) msg = '🌟 Excellent! You are a superstar!';
+        else if (pct >= 60) msg = '😊 Good job! Keep practicing!';
+        else if (pct >= 40) msg = '📖 Not bad, but let\'s try again!';
+        else msg = '💪 Keep going! You can do better!';
+        feedbackMsg.textContent = msg;
+
+        if (pct >= 80) {
+            for (let i = 0; i < 60; i++) {
+                const c = document.createElement('div');
+                c.classList.add('confetti');
+                c.textContent = ['🎉','✨','🎈','⭐','🎊','🏆','🍄','🚀'][Math.floor(Math.random()*8)];
+                c.style.left = Math.random() * 100 + '%';
+                c.style.animationDuration = (2 + Math.random() * 3) + 's';
+                c.style.fontSize = (1.5 + Math.random() * 2) + 'rem';
+                document.body.appendChild(c);
+                setTimeout(() => c.remove(), 5500);
+            }
+        }
+
+        reviewSection.innerHTML = '';
+        questions.forEach((q, idx) => {
+            const ua = userAnswers[idx];
+            const ok = (ua === q.answer);
+            const div = document.createElement('div');
+            div.classList.add('review-item');
+            div.innerHTML = `<span><b>${idx+1}.</b></span>
+                <span style="flex:1;">${q.q}</span>
+                <span class="${ok?'review-correct':'review-wrong'}">
+                ${ok ? '✓' : '✗ '+(ua!==null?q.options[ua]:'—')}
+                </span>`;
+            reviewSection.appendChild(div);
+        });
+    }
+
+    // ---- RESTART ----
+    restartBtn.addEventListener('click', () => {
+        quizStarted = false;
+        resultScreen.style.display = 'none';
+        startScreen.style.display = 'flex';
+        quizScreen.style.display = 'none';
+        studentNameInput.value = '';
+        studentClassInput.value = '';
+        userAnswers = new Array(50).fill(null);
+        currentIndex = 0;
+        document.body.classList.remove('zone-1','zone-2','zone-3','zone-4','zone-5');
+        document.body.classList.add('zone-1');
+        document.body.style.background = zones[0].bg;
+        gameBadge.textContent = `${zones[0].icon} ${zones[0].name}`;
+    });
+
+    window.addEventListener('beforeunload', (e) => {
+        if (quizStarted && resultScreen.style.display !== 'flex') {
+            e.preventDefault(); e.returnValue = '';
+        }
+    });
+
+    renderQuestion(0);
+})();
+</script>
+</body>
+</html>

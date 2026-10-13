@@ -1,0 +1,1682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PASA Year 3 2026 · Bahasa Inggeris (013) — Student & Teacher Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  :root{
+    --ink:#1e2246;
+    --muted:#6c7293;
+    --brand:#6a5cff;
+    --brand2:#a855f7;
+    --pink:#ff5fa2;
+    --ok:#12b76a;
+    --no:#f04438;
+    --line:#e8e8f6;
+  }
+  html,body{height:100%;}
+  body{
+    font-family:'Nunito',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+    color:var(--ink);
+    background:linear-gradient(140deg,#6a5cff 0%,#9b5cff 45%,#ff6fb1 100%);
+    background-attachment:fixed;
+    min-height:100vh;
+    padding:18px 14px 40px;
+    display:flex;justify-content:center;align-items:flex-start;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before,body::after{
+    content:"";position:fixed;border-radius:50%;filter:blur(60px);opacity:.45;z-index:0;pointer-events:none;
+  }
+  body::before{width:320px;height:320px;background:#ffd166;top:-120px;left:-100px;}
+  body::after{width:360px;height:360px;background:#4cc9f0;bottom:-140px;right:-120px;}
+
+  .app{width:100%;max-width:960px;position:relative;z-index:1;}
+  .card{
+    background:#fff;border-radius:28px;
+    box-shadow:0 24px 60px rgba(24,16,72,.28);overflow:hidden;
+  }
+
+  .topbar{
+    background:linear-gradient(120deg,#4f3ff0,#8b5cf6 60%,#c026d3);
+    color:#fff;padding:20px 24px 18px;position:relative;
+  }
+  .topbar .kicker{font-size:12px;letter-spacing:1.6px;text-transform:uppercase;opacity:.85;font-weight:800;margin-bottom:4px;}
+  .topbar h1{font-family:'Baloo 2',cursive;font-size:clamp(20px,4.4vw,28px);line-height:1.15;font-weight:800;}
+  .topbar .meta{margin-top:8px;font-size:13px;opacity:.9;font-weight:600;display:flex;gap:14px;flex-wrap:wrap;}
+
+  .quizbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 24px 0;flex-wrap:wrap;}
+  .pill{background:#f1efff;color:#5b4bd6;border-radius:999px;padding:5px 13px;font-size:12.5px;font-weight:800;letter-spacing:.3px;}
+  .pill.score{background:#e9fbf1;color:#0b8a52;}
+  .pill.who{background:#fff0f7;color:#c0266e;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+  .progress-wrap{padding:12px 24px 0;}
+  .progress{height:11px;background:#eeecfb;border-radius:999px;overflow:hidden;}
+  .progress > i{display:block;height:100%;width:0%;background:linear-gradient(90deg,#6a5cff,#a855f7,#ff5fa2);border-radius:999px;transition:width .35s ease;}
+  .progress-text{font-size:12px;color:var(--muted);font-weight:700;margin-top:6px;display:flex;justify-content:space-between;}
+
+  .qarea{padding:18px 24px 8px;}
+  .qtag{display:inline-block;background:linear-gradient(120deg,#6a5cff,#a855f7);color:#fff;font-size:12px;font-weight:800;letter-spacing:.8px;padding:5px 12px;border-radius:999px;margin-bottom:12px;}
+  .qtag.g2{background:linear-gradient(120deg,#0ea5e9,#22c55e);}
+  .qtag.g3{background:linear-gradient(120deg,#f59e0b,#ef4444);}
+  .qtag.g4{background:linear-gradient(120deg,#ec4899,#8b5cf6);}
+
+  .qtext{font-family:'Baloo 2',cursive;font-size:clamp(17px,2.6vw,21px);line-height:1.45;font-weight:700;margin-bottom:14px;}
+  .instruction{font-size:13.5px;color:var(--muted);font-weight:700;background:#f7f7fe;border-left:4px solid var(--brand);padding:9px 13px;border-radius:0 12px 12px 0;margin-bottom:14px;}
+
+  .options{display:flex;flex-direction:column;gap:10px;margin-top:6px;}
+  .opt{
+    display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;
+    padding:14px 16px;border:2px solid var(--line);border-radius:16px;background:#fbfbff;color:var(--ink);
+    font-size:15.5px;font-weight:700;cursor:pointer;
+    transition:transform .12s,border-color .15s,background .15s,box-shadow .15s;
+  }
+  .opt:hover:not(:disabled){border-color:#b9b0ff;background:#f5f3ff;transform:translateY(-2px);}
+  .opt:disabled{cursor:default;}
+  .opt .badge{flex:0 0 32px;height:32px;border-radius:50%;background:#ece9ff;color:#5b4bd6;display:grid;place-items:center;font-weight:800;font-size:14px;transition:.15s;}
+  .opt.sel{border-color:var(--brand);background:#f2f0ff;box-shadow:0 0 0 4px rgba(106,92,255,.14);}
+  .opt.sel .badge{background:var(--brand);color:#fff;}
+  .opt.correct{border-color:var(--ok);background:#e9fbf1;box-shadow:0 0 0 4px rgba(18,183,106,.13);}
+  .opt.correct .badge{background:var(--ok);color:#fff;}
+  .opt.wrong{border-color:var(--no);background:#fdecea;box-shadow:0 0 0 4px rgba(240,68,56,.12);}
+  .opt.wrong .badge{background:var(--no);color:#fff;}
+
+  .input-row{display:flex;align-items:center;gap:10px;background:#fbfbff;border:2px solid var(--line);border-radius:16px;padding:12px 16px;max-width:420px;}
+  .input-row .prefix{font-family:'Baloo 2',cursive;font-size:22px;font-weight:800;color:var(--brand);}
+  .input-row input{flex:1;border:none;background:transparent;outline:none;font:inherit;font-size:18px;font-weight:800;letter-spacing:3px;color:var(--ink);}
+  .input-row input::placeholder{letter-spacing:1px;font-weight:600;color:#b9bcd6;}
+  .input-row.ok{border-color:var(--ok);background:#e9fbf1;}
+  .input-row.no{border-color:var(--no);background:#fdecea;}
+
+  .order-grid{display:grid;gap:14px;}
+  .order-col h5{font-size:12.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);font-weight:800;margin-bottom:8px;}
+  .chips{display:flex;flex-direction:column;gap:8px;}
+  .chip{
+    display:flex;align-items:center;gap:10px;text-align:left;font:inherit;font-size:14.5px;font-weight:700;
+    background:#fbfbff;border:2px dashed #d8d5f5;color:var(--ink);padding:11px 14px;border-radius:14px;cursor:pointer;width:100%;
+    transition:.15s;
+  }
+  .chip:hover:not(:disabled){border-color:var(--brand);background:#f5f3ff;transform:translateX(3px);}
+  .chip:disabled{cursor:default;opacity:.55;}
+  .chip .num{flex:0 0 26px;height:26px;border-radius:8px;background:#ece9ff;color:#5b4bd6;display:grid;place-items:center;font-size:12.5px;font-weight:800;}
+  .chip.picked{border-style:solid;border-color:var(--brand);background:#f2f0ff;}
+  .chip.picked .num{background:var(--brand);color:#fff;}
+  .chip.ok{border-color:var(--ok);background:#e9fbf1;}
+  .chip.ok .num{background:var(--ok);color:#fff;}
+  .chip.no{border-color:var(--no);background:#fdecea;}
+  .chip.no .num{background:var(--no);color:#fff;}
+
+  .fill{border:none;border-bottom:2.5px dashed #a99dff;background:#f7f5ff;font:inherit;font-weight:800;color:#3b2f9c;padding:2px 8px;border-radius:8px 8px 0 0;min-width:130px;outline:none;font-size:14.5px;}
+  .fill::placeholder{color:#a9a3d8;font-weight:600;}
+  .fill:focus{background:#efeaff;border-bottom-color:var(--brand);}
+  .fill.ok{border-bottom-color:var(--ok);background:#e9fbf1;color:#0b8a52;}
+  .fill.no{border-bottom-color:var(--no);background:#fdecea;color:#b42318;}
+
+  .feedback{margin-top:16px;border-radius:16px;padding:14px 16px;font-size:14.5px;font-weight:700;line-height:1.5;display:none;animation:pop .25s ease;}
+  .feedback.show{display:block;}
+  .feedback.good{background:#e9fbf1;border:2px solid #a6f0c9;color:#0b6b41;}
+  .feedback.bad{background:#fdecea;border:2px solid #fbc9c4;color:#a32218;}
+  .feedback .fb-title{font-family:'Baloo 2',cursive;font-size:17px;display:block;margin-bottom:4px;}
+  @keyframes pop{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+  .qfoot{padding:16px 24px 24px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+  .btn{font:inherit;font-weight:800;font-size:15.5px;border:none;border-radius:16px;padding:13px 26px;cursor:pointer;transition:transform .12s,box-shadow .15s,opacity .15s;display:inline-flex;align-items:center;gap:8px;}
+  .btn:active{transform:scale(.97);}
+  .btn-primary{background:linear-gradient(120deg,#6a5cff,#a855f7);color:#fff;box-shadow:0 10px 24px rgba(106,92,255,.35);}
+  .btn-primary:hover:not(:disabled){box-shadow:0 14px 30px rgba(106,92,255,.45);transform:translateY(-2px);}
+  .btn-primary:disabled{opacity:.4;cursor:not-allowed;box-shadow:none;}
+  .btn-ghost{background:#f1f0fb;color:#5b4bd6;}
+  .btn-ghost:hover{background:#e7e4fb;}
+  .btn-pink{background:linear-gradient(120deg,#ff5fa2,#f43f5e);color:#fff;box-shadow:0 10px 24px rgba(244,63,94,.35);}
+  .btn-pink:hover{transform:translateY(-2px);}
+  .btn-green{background:linear-gradient(120deg,#22c55e,#16a34a);color:#fff;box-shadow:0 10px 24px rgba(34,197,94,.35);}
+  .btn-green:hover{transform:translateY(-2px);}
+  .btn-sm{font-size:13.5px;padding:9px 16px;border-radius:12px;}
+
+  .start{padding:26px 24px 30px;}
+  .start-hero{text-align:center;padding:8px 6px 20px;}
+  .start-hero .emoji{font-size:52px;line-height:1;}
+  .start-hero h2{font-family:'Baloo 2',cursive;font-size:clamp(22px,5vw,32px);margin-top:8px;font-weight:800;}
+  .start-hero p{color:var(--muted);font-weight:700;margin-top:6px;font-size:15px;}
+  .field{margin-top:16px;}
+  .field label{display:block;font-size:13px;font-weight:800;color:var(--muted);letter-spacing:.6px;text-transform:uppercase;margin-bottom:7px;}
+  .field input{width:100%;font:inherit;font-size:16px;font-weight:700;padding:14px 16px;border-radius:16px;border:2px solid var(--line);background:#fbfbff;outline:none;color:var(--ink);transition:.15s;}
+  .field input:focus{border-color:var(--brand);background:#f5f3ff;box-shadow:0 0 0 4px rgba(106,92,255,.12);}
+
+  .mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px;}
+  .mode-card{
+    background:#fbfbff;border:2px solid var(--line);border-radius:20px;padding:22px 18px;text-align:center;cursor:pointer;
+    transition:.15s;
+  }
+  .mode-card:hover{border-color:var(--brand);background:#f5f3ff;transform:translateY(-3px);box-shadow:0 12px 26px rgba(106,92,255,.15);}
+  .mode-card .m-emoji{font-size:44px;line-height:1;}
+  .mode-card h3{font-family:'Baloo 2',cursive;font-size:19px;margin-top:10px;}
+  .mode-card p{font-size:12.5px;color:var(--muted);font-weight:700;margin-top:4px;}
+
+  .hint{font-size:12px;color:var(--muted);font-weight:700;margin-top:8px;background:#fff8e6;border:1.5px dashed #f4b942;border-radius:10px;padding:8px 11px;}
+
+  .parts-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:9px;margin-top:20px;}
+  .part-chip{background:#f7f7fe;border:2px solid #eeecfb;border-radius:14px;padding:10px 12px;text-align:center;}
+  .part-chip b{display:block;font-size:13px;color:var(--brand);font-weight:800;}
+  .part-chip span{font-size:12px;color:var(--muted);font-weight:700;}
+
+  .result{padding:26px 24px 30px;text-align:center;}
+  .score-ring{width:170px;height:170px;border-radius:50%;margin:6px auto 12px;display:grid;place-items:center;position:relative;background:conic-gradient(#6a5cff var(--p,0%), #eeecfb 0);transition:background .6s ease;}
+  .score-ring::after{content:"";position:absolute;inset:13px;border-radius:50%;background:#fff;}
+  .score-ring .val{position:relative;z-index:1;text-align:center;}
+  .score-ring .val b{font-family:'Baloo 2',cursive;font-size:42px;line-height:1;display:block;}
+  .score-ring .val span{font-size:12.5px;color:var(--muted);font-weight:800;letter-spacing:1px;}
+  .result h2{font-family:'Baloo 2',cursive;font-size:26px;margin-top:6px;}
+  .result .grade{display:inline-block;margin-top:8px;padding:7px 18px;border-radius:999px;font-weight:800;font-size:14px;background:#f1efff;color:#5b4bd6;}
+  .breakdown{margin-top:22px;text-align:left;border:2px solid var(--line);border-radius:18px;overflow:hidden;}
+  .bd-row{display:flex;justify-content:space-between;align-items:center;padding:11px 16px;font-size:14px;font-weight:700;border-bottom:1px solid var(--line);background:#fff;}
+  .bd-row:last-child{border-bottom:none;}
+  .bd-row.total{background:#f7f7fe;font-size:15.5px;}
+  .bd-row .bar{flex:1;height:8px;background:#eeecfb;border-radius:999px;margin:0 14px;overflow:hidden;max-width:190px;}
+  .bd-row .bar i{display:block;height:100%;background:linear-gradient(90deg,#6a5cff,#a855f7);border-radius:999px;}
+
+  .review{margin-top:22px;text-align:left;}
+  .review h3{font-family:'Baloo 2',cursive;font-size:18px;margin-bottom:10px;}
+  .rev-item{display:flex;gap:11px;align-items:flex-start;background:#fbfbff;border:2px solid var(--line);border-radius:14px;padding:11px 14px;margin-bottom:8px;font-size:13.5px;font-weight:700;line-height:1.45;}
+  .rev-item .ic{flex:0 0 24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:13px;color:#fff;font-weight:800;}
+  .rev-item.good .ic{background:var(--ok);}
+  .rev-item.bad .ic{background:var(--no);}
+  .rev-item .ans{color:var(--ok);}
+
+  .visual{border-radius:18px;padding:16px;margin-bottom:16px;background:#f7f7fe;border:2px solid #ecebfa;}
+  .vis-title{font-family:'Baloo 2',cursive;font-size:17px;font-weight:800;text-align:center;background:#fff;border:2.5px solid var(--ink);border-radius:12px;padding:8px 12px;margin-bottom:12px;}
+  .lib-grid{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;}
+  .lib-kid{background:#fff;border-radius:14px;padding:10px 14px;font-size:26px;display:flex;flex-direction:column;align-items:center;gap:2px;border:2px solid #ecebfa;min-width:74px;}
+  .lib-kid span{font-size:19px;}
+  .vis-foot{margin-top:12px;text-align:center;font-weight:800;font-size:13.5px;background:#fff;border-radius:12px;padding:9px;border:2px dashed #d8d5f5;}
+
+  .phone{max-width:330px;margin:0 auto;background:#111827;border-radius:26px;padding:9px;box-shadow:0 10px 26px rgba(0,0,0,.2);}
+  .phone-screen{background:#eef0f7;border-radius:19px;overflow:hidden;}
+  .phone-top{display:flex;justify-content:space-between;background:#fff;padding:7px 13px;font-size:11px;font-weight:800;color:#374151;}
+  .phone-head{background:#fff;padding:8px 13px;display:flex;align-items:center;gap:9px;border-bottom:1px solid #e5e7eb;font-weight:800;font-size:13.5px;}
+  .phone-head .av{width:30px;height:30px;border-radius:50%;background:#ffe0ef;display:grid;place-items:center;font-size:16px;}
+  .phone-head small{display:block;font-size:10.5px;color:#16a34a;font-weight:700;}
+  .phone-body{padding:12px;min-height:150px;}
+  .bubble{background:#fff;border-radius:14px 14px 14px 4px;padding:12px 13px;font-size:13px;line-height:1.55;font-weight:600;color:#1f2937;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+  .bubble .time{display:block;text-align:right;font-size:10.5px;color:#9ca3af;margin-top:6px;}
+  .phone-input{background:#fff;padding:9px 13px;font-size:12px;color:#9ca3af;display:flex;justify-content:space-between;align-items:center;font-weight:700;border-top:1px solid #e5e7eb;}
+
+  .data-table{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;overflow:hidden;font-size:13.5px;font-weight:700;}
+  .data-table th{background:linear-gradient(120deg,#6a5cff,#a855f7);color:#fff;padding:9px 10px;text-align:left;font-size:12.5px;letter-spacing:.5px;}
+  .data-table td{padding:9px 10px;border-bottom:1px solid #eeecfb;}
+  .data-table tr:last-child td{border-bottom:none;}
+  .data-table tr:nth-child(even) td{background:#fafaff;}
+
+  .poster-yummy{background:linear-gradient(160deg,#fff7d6,#ffe6b8);border:3px solid #f4b942;border-radius:18px;padding:16px;text-align:center;}
+  .yummy-title{font-family:'Baloo 2',cursive;font-size:30px;font-weight:800;color:#c2410c;text-shadow:2px 2px 0 #fff;}
+  .yummy-sub{display:inline-block;background:#fff;border-radius:999px;padding:4px 14px;font-size:12.5px;font-weight:800;color:#92400e;margin-top:2px;border:2px solid #f4b942;}
+  .yummy-body{display:flex;gap:14px;justify-content:center;align-items:center;margin-top:14px;flex-wrap:wrap;text-align:left;}
+  .yummy-set{background:#fff;border-radius:14px;padding:12px 16px;font-size:13.5px;font-weight:700;color:#44403c;border:2px solid #fcd9a0;}
+  .yummy-set ul{margin:6px 0 0 16px;}
+  .yummy-set li{margin-bottom:2px;}
+  .yummy-price{background:#fff;border:3px dashed #ef4444;border-radius:14px;padding:10px 16px;font-size:12.5px;font-weight:800;color:#b91c1c;text-align:center;line-height:1.3;}
+  .yummy-price b{font-family:'Baloo 2',cursive;font-size:26px;display:block;color:#dc2626;}
+  .yummy-emoji{font-size:30px;margin-top:12px;letter-spacing:6px;}
+
+  .email-card{background:#fff;border:2px solid var(--line);border-radius:16px;overflow:hidden;font-size:13.5px;}
+  .email-head{background:#f7f7fe;padding:11px 15px;font-size:12.5px;color:var(--muted);font-weight:700;border-bottom:1px solid var(--line);line-height:1.6;}
+  .email-head b{color:var(--ink);}
+  .email-body{padding:15px;font-weight:600;line-height:1.65;color:#33384f;}
+  .email-body p{margin-bottom:9px;}
+
+  .passage{background:#fbfbff;border:2px solid var(--line);border-radius:16px;padding:16px;font-size:14.5px;line-height:1.75;font-weight:600;color:#33384f;}
+  .passage h4{font-family:'Baloo 2',cursive;font-size:17px;margin-bottom:8px;color:var(--brand);}
+  .blk{display:inline-block;background:#f1efff;color:#5b4bd6;border-radius:7px;padding:0 7px;font-weight:800;font-size:13.5px;}
+  .blk.active{background:#6a5cff;color:#fff;box-shadow:0 0 0 3px rgba(106,92,255,.18);}
+
+  .houses{display:grid;gap:10px;}
+  .house{background:#fff;border:2px solid var(--line);border-radius:14px;padding:12px 14px;font-size:13px;line-height:1.55;font-weight:600;color:#33384f;}
+  .house b{display:flex;align-items:center;gap:8px;font-family:'Baloo 2',cursive;font-size:15.5px;color:var(--brand);margin-bottom:5px;}
+  .house b em{font-style:normal;background:var(--brand);color:#fff;width:24px;height:24px;border-radius:8px;display:grid;place-items:center;font-size:13px;font-weight:800;}
+
+  .steps-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px;}
+  .step{flex:0 0 108px;background:#fff;border:2px solid #ecebfa;border-radius:14px;padding:9px 7px;text-align:center;}
+  .step .step-num{font-size:11px;font-weight:800;color:#5b4bd6;background:#f1efff;border-radius:999px;display:inline-block;padding:1px 9px;margin-bottom:5px;}
+  .step .step-emoji{font-size:22px;line-height:1.3;}
+  .step .step-cap{font-size:11px;font-weight:800;color:var(--muted);margin-top:4px;}
+
+  .poster-sports{background:linear-gradient(160deg,#e0f2fe,#ede9fe);border:3px solid #6a5cff;border-radius:18px;padding:16px;text-align:center;}
+  .sp-title{font-family:'Baloo 2',cursive;font-size:clamp(22px,5vw,32px);font-weight:800;color:#4338ca;line-height:1.1;text-shadow:2px 2px 0 #fff;}
+  .sp-sub{font-size:12.5px;font-weight:800;color:#7c3aed;letter-spacing:1px;margin-top:4px;}
+  .sp-icons{font-size:26px;letter-spacing:8px;margin:10px 0;}
+  .sp-info{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:6px;}
+  .sp-box{background:#fff;border-radius:12px;padding:9px 11px;text-align:left;font-size:12.5px;font-weight:700;color:#33384f;border:2px solid #ddd6fe;}
+  .sp-box b{display:block;font-size:11px;color:#7c3aed;letter-spacing:.5px;margin-bottom:2px;}
+  .sp-act{margin-top:10px;background:#fff;border-radius:12px;padding:9px 12px;font-size:12.5px;font-weight:800;color:#4338ca;border:2px dashed #c4b5fd;}
+  .sp-footer{margin-top:9px;font-size:12.5px;font-weight:800;color:#db2777;}
+
+  /* ====== TEACHER DASHBOARD ====== */
+  .dash{padding:22px 24px 28px;}
+  .dash h2{font-family:'Baloo 2',cursive;font-size:24px;margin-bottom:4px;}
+  .dash .sub{color:var(--muted);font-weight:700;font-size:13.5px;margin-bottom:18px;}
+
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:18px;}
+  .stat-box{background:#f7f7fe;border:2px solid #eeecfb;border-radius:16px;padding:13px 14px;text-align:center;}
+  .stat-box .num{font-family:'Baloo 2',cursive;font-size:26px;color:var(--brand);font-weight:800;line-height:1.1;}
+  .stat-box .lbl{font-size:11.5px;color:var(--muted);font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-top:3px;}
+
+  .stud-list{display:flex;flex-direction:column;gap:9px;}
+  .stud-row{
+    display:flex;align-items:center;gap:12px;background:#fbfbff;border:2px solid var(--line);
+    border-radius:14px;padding:12px 14px;transition:.15s;
+  }
+  .stud-row:hover{border-color:var(--brand);background:#f5f3ff;}
+  .stud-row .av{flex:0 0 38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#6a5cff,#ff5fa2);color:#fff;display:grid;place-items:center;font-weight:800;font-size:15px;}
+  .stud-row .info{flex:1;min-width:0;}
+  .stud-row .info b{display:block;font-size:15px;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .stud-row .info small{font-size:11.5px;color:var(--muted);font-weight:700;}
+  .stud-row .sc{flex:0 0 auto;font-family:'Baloo 2',cursive;font-size:18px;font-weight:800;color:#5b4bd6;}
+  .stud-row .sc small{font-size:11px;color:var(--muted);font-weight:800;}
+
+  .detail-head{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    background:linear-gradient(120deg,#6a5cff,#a855f7);color:#fff;border-radius:18px;padding:16px 18px;margin-bottom:16px;
+  }
+  .detail-head h3{font-family:'Baloo 2',cursive;font-size:20px;}
+  .detail-head .sc{font-family:'Baloo 2',cursive;font-size:32px;font-weight:800;}
+
+  .wrong-box{background:#fff5f5;border:2px solid #ffd5d5;border-radius:16px;padding:14px 16px;margin-top:16px;}
+  .wrong-box h4{font-family:'Baloo 2',cursive;color:#b42318;font-size:17px;margin-bottom:10px;}
+  .wrong-item{background:#fff;border-radius:12px;padding:11px 13px;margin-bottom:8px;font-size:13.5px;font-weight:700;line-height:1.5;border-left:4px solid var(--no);}
+  .wrong-item b{color:#b42318;}
+  .wrong-item .corr{color:#0b6b41;}
+
+  .empty{
+    text-align:center;padding:40px 20px;color:var(--muted);font-weight:700;
+  }
+  .empty .big{font-size:48px;line-height:1;margin-bottom:10px;}
+
+  .hidden{display:none !important;}
+
+  @media(max-width:520px){
+    body{padding:10px 8px 30px;}
+    .card{border-radius:22px;}
+    .qarea,.start,.result,.dash{padding-left:16px;padding-right:16px;}
+    .topbar{padding:16px 16px 14px;}
+    .quizbar,.progress-wrap{padding-left:16px;padding-right:16px;}
+    .qfoot{padding-left:16px;padding-right:16px;}
+    .btn{padding:12px 20px;font-size:14.5px;}
+    .opt{font-size:14.5px;padding:12px 13px;}
+    .mode-grid{grid-template-columns:1fr;}
+  }
+
+  @media print{
+    body{background:#fff;padding:0;}
+    .topbar,.quizbar,.progress-wrap,.qfoot,.no-print{display:none !important;}
+    .card{box-shadow:none;border-radius:0;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="card">
+
+    <!-- ================= HEADER ================= -->
+    <div class="topbar">
+      <div class="kicker">Pentaksiran Akhir Sesi Akademik · Tahun 3 · 2026</div>
+      <h1>Bahasa Inggeris (013)</h1>
+      <div class="meta">
+        <span>⏱️ 1 jam 15 minit</span>
+        <span>📝 50 markah</span>
+        <span>🧩 7 bahagian</span>
+      </div>
+    </div>
+
+    <!-- ================= MODE SELECT ================= -->
+    <section id="modeScreen" class="start">
+      <div class="start-hero">
+        <div class="emoji">📚✏️🎈</div>
+        <h2>Welcome!</h2>
+        <p>Choose how you want to enter the quiz portal.</p>
+      </div>
+
+      <div class="mode-grid">
+        <div class="mode-card" id="modeStudent">
+          <div class="m-emoji">🧒</div>
+          <h3>Student</h3>
+          <p>Take the English quiz</p>
+        </div>
+        <div class="mode-card" id="modeTeacher">
+          <div class="m-emoji">👩‍🏫</div>
+          <h3>Teacher</h3>
+          <p>View results &amp; reports</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= STUDENT LOGIN ================= -->
+    <section id="studentLogin" class="start hidden">
+      <div class="start-hero">
+        <div class="emoji">🧒✏️</div>
+        <h2>Student Login</h2>
+        <p>Type your name to begin the quiz.</p>
+      </div>
+      <div class="field">
+        <label for="nameInput">Your Name</label>
+        <input id="nameInput" type="text" placeholder="Type your name here..." maxlength="30" autocomplete="off" />
+      </div>
+      <div class="parts-list">
+        <div class="part-chip"><b>Part 1</b><span>5 marks</span></div>
+        <div class="part-chip"><b>Part 2</b><span>4 marks</span></div>
+        <div class="part-chip"><b>Part 3</b><span>5 marks</span></div>
+        <div class="part-chip"><b>Part 4</b><span>6 marks</span></div>
+        <div class="part-chip"><b>Part 5</b><span>5 marks</span></div>
+        <div class="part-chip"><b>Part 6</b><span>10 marks</span></div>
+        <div class="part-chip"><b>Part 7</b><span>15 marks</span></div>
+      </div>
+      <div style="margin-top:22px;display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-ghost" id="backToMode1">← Back</button>
+        <button class="btn btn-primary" id="startBtn" style="flex:1;justify-content:center;">🚀 Start the Quiz</button>
+      </div>
+    </section>
+
+    <!-- ================= TEACHER LOGIN ================= -->
+    <section id="teacherLogin" class="start hidden">
+      <div class="start-hero">
+        <div class="emoji">👩‍🏫🔐</div>
+        <h2>Teacher Login</h2>
+        <p>Enter the teacher password to access the dashboard.</p>
+      </div>
+      <div class="field">
+        <label for="passInput">Password</label>
+        <input id="passInput" type="password" placeholder="Enter password..." autocomplete="off" />
+      </div>
+      <div class="hint">💡 Demo password: <b>guru2026</b> — you can change it in the code.</div>
+      <div id="passMsg" style="color:#b42318;font-weight:800;font-size:13.5px;margin-top:8px;display:none;">❌ Wrong password. Please try again.</div>
+      <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-ghost" id="backToMode2">← Back</button>
+        <button class="btn btn-primary" id="loginBtn" style="flex:1;justify-content:center;">🔓 Login</button>
+      </div>
+    </section>
+
+    <!-- ================= QUIZ SCREEN ================= -->
+    <section id="quizScreen" class="hidden">
+      <div class="quizbar">
+        <span class="pill who" id="whoPill">👤 Student</span>
+        <span class="pill" id="partPill">Part 1</span>
+        <span class="pill score" id="scorePill">⭐ 0 / 50</span>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress"><i id="progressBar"></i></div>
+        <div class="progress-text">
+          <span id="progressLabel">Question 1 of 27</span>
+          <span id="progressPct">0%</span>
+        </div>
+      </div>
+      <div class="qarea" id="qarea"></div>
+      <div class="qfoot">
+        <button class="btn btn-ghost" id="resetBtn">↺ Reset</button>
+        <button class="btn btn-primary" id="actionBtn" disabled>Check Answer</button>
+      </div>
+    </section>
+
+    <!-- ================= RESULT SCREEN ================= -->
+    <section id="resultScreen" class="result hidden">
+      <div class="score-ring" id="scoreRing">
+        <div class="val"><b id="finalScore">0</b><span>OUT OF 50</span></div>
+      </div>
+      <h2 id="resultTitle">Well done!</h2>
+      <div class="grade" id="gradePill">⭐ Keep practising</div>
+      <div class="breakdown" id="breakdown"></div>
+      <div class="review" id="review"></div>
+      <div style="margin-top:22px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;" class="no-print">
+        <button class="btn btn-primary" id="againBtn">🔄 Try Again</button>
+        <button class="btn btn-green" id="saveBtn">💾 Save to Teacher Records</button>
+        <button class="btn btn-pink" id="printBtn">🖨️ Print / PDF</button>
+      </div>
+      <div id="saveMsg" style="margin-top:12px;font-weight:800;font-size:13.5px;display:none;"></div>
+    </section>
+
+    <!-- ================= TEACHER DASHBOARD ================= -->
+    <section id="teacherDash" class="dash hidden">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+        <div>
+          <h2>👩‍🏫 Teacher Dashboard</h2>
+          <div class="sub">View every student's result, spot wrong answers, and generate PDF reports.</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="logoutBtn">🚪 Logout</button>
+      </div>
+
+      <!-- ===== LIST VIEW ===== -->
+      <div id="dashList">
+        <div class="stats-grid" id="statsGrid"></div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+          <b style="font-size:15px;">📋 Student Records</b>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-green btn-sm" id="pdfAllBtn">📄 PDF — All Students</button>
+            <button class="btn btn-ghost btn-sm" id="clearAllBtn">🗑️ Clear All</button>
+          </div>
+        </div>
+
+        <div class="stud-list" id="studList"></div>
+      </div>
+
+      <!-- ===== DETAIL VIEW ===== -->
+      <div id="dashDetail" class="hidden">
+        <button class="btn btn-ghost btn-sm" id="backToList" style="margin-bottom:14px;">← Back to list</button>
+        <div class="detail-head">
+          <div>
+            <h3 id="detName">Student</h3>
+            <div style="font-size:12.5px;font-weight:700;opacity:.9;" id="detDate">—</div>
+          </div>
+          <div class="sc" id="detScore">0 / 50</div>
+        </div>
+
+        <div class="breakdown" id="detBreakdown"></div>
+        <div class="wrong-box" id="detWrongBox"></div>
+
+        <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-green" id="pdfOneBtn">📄 Generate PDF for this Student</button>
+          <button class="btn btn-pink" id="printOneBtn">🖨️ Print</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   CONFIG
+   ========================================================= */
+const TEACHER_PASSWORD = 'guru2026';   /* ← change this if you like */
+const STORAGE_KEY = 'pasa_y3_english_records_v1';
+
+/* =========================================================
+   REUSABLE VISUALS
+   ========================================================= */
+const V_LIBRARY = `
+<div class="visual">
+  <div class="vis-title">📣 KEEP THE LIBRARY QUIET!</div>
+  <div class="lib-grid">
+    <div class="lib-kid">🧒<span>🤫</span></div>
+    <div class="lib-kid">👧<span>📖</span></div>
+    <div class="lib-kid">👦<span>📖</span></div>
+  </div>
+  <div class="vis-foot">Please speak softly. &nbsp;·&nbsp; 🚫 Do not run or shout.</div>
+</div>`;
+
+const V_PHONE = `
+<div class="visual">
+  <div class="phone">
+    <div class="phone-screen">
+      <div class="phone-top"><span>3:30</span><span>📶 🔋</span></div>
+      <div class="phone-head"><div class="av">👧</div><div>Aina<small>online</small></div></div>
+      <div class="phone-body">
+        <div class="bubble">
+          Hi Sara!<br><br>
+          Let's go to the park this Saturday. We can ride our bikes and play badminton.
+          Please bring your water bottle.<br><br>
+          See you there!<br>Aina
+          <span class="time">3:30 p.m.</span>
+        </div>
+      </div>
+      <div class="phone-input"><span>😊 Type a message...</span><span>📎 📷 🎤</span></div>
+    </div>
+  </div>
+</div>`;
+
+const V_TIMETABLE = `
+<div class="visual">
+  <table class="data-table">
+    <tr><th>Day</th><th>Activity</th><th>Time</th></tr>
+    <tr><td>Monday</td><td>Football</td><td>3.00 p.m.</td></tr>
+    <tr><td>Tuesday</td><td>Art Club</td><td>2.00 p.m.</td></tr>
+    <tr><td>Wednesday</td><td>Music Club</td><td>3.30 p.m.</td></tr>
+    <tr><td>Thursday</td><td>English Club</td><td>2.30 p.m.</td></tr>
+    <tr><td>Friday</td><td>Badminton</td><td>2.00 p.m.</td></tr>
+  </table>
+</div>`;
+
+const V_YUMMY = `
+<div class="visual">
+  <div class="poster-yummy">
+    <div class="yummy-title">Yummy Bites</div>
+    <div class="yummy-sub">Tasty Food for Everyone!</div>
+    <div class="yummy-body">
+      <div class="yummy-set">
+        <strong>Set includes:</strong>
+        <ul>
+          <li>1 chicken burger</li>
+          <li>1 packet of french fries</li>
+          <li>1 cup of orange juice</li>
+        </ul>
+      </div>
+      <div class="yummy-price">Special Set<b>RM8</b>only!</div>
+    </div>
+    <div class="yummy-emoji">🍔 🍟 🥤</div>
+  </div>
+</div>`;
+
+const V_JENNY = `
+<div class="visual">
+  <div class="email-card">
+    <div class="email-head"><b>From:</b> jenny@zmail.com<br><b>Subject:</b> My Ambition</div>
+    <div class="email-body">
+      <p>Hi Sienna,</p>
+      <p>How are you? I want to be a doctor when I grow up. I want to help sick people.
+      My sister, Sara, wants to be a teacher. She loves teaching children.
+      What do you want to be?</p>
+      <p>Bye,<br>Jenny</p>
+    </div>
+  </div>
+</div>`;
+
+const V_HOUSES = `
+<div class="visual">
+  <div class="houses">
+    <div class="house">
+      <b><em>A</em> Igloo 🧊</b>
+      An igloo is a small, round house. It is made of snow. People use igloos in very cold
+      places. The walls are thick and help people stay warm. There is a small door.
+      Inside, people can sleep and rest. An igloo is a good place to stay when it is
+      very cold outside.
+    </div>
+    <div class="house">
+      <b><em>B</em> Stilt House 🏝️</b>
+      A stilt house is made of wood. It is built on tall poles. People can find these
+      houses in Malaysia and Indonesia. There are stairs to go up to the house.
+      The floor is high above the ground. This helps keep the house safe when there is
+      a lot of water. People can cook, eat and sleep inside.
+    </div>
+    <div class="house">
+      <b><em>C</em> Yurt ⛺</b>
+      A yurt is a round house. People in Mongolia use this house. It is made of wood and
+      thick cloth. It has a small door and a round roof. People can take the house down
+      and move it to a new place. A yurt is warm in winter and cool in summer.
+      Families can eat, sleep and rest inside.
+    </div>
+  </div>
+</div>`;
+
+const V_FUNFAIR = `
+<div class="visual">
+  <div class="email-card">
+    <div class="email-head"><b>Dear Diary,</b></div>
+    <div class="email-body">
+      <p>Today was a great day! I went to the funfair with my family. We went there in the
+      morning. It was sunny and hot. There were many people at the funfair. First, my
+      brother, Adam played some games. Adam wanted a teddy bear, but he did not win.
+      He was sad, so I bought him a teddy bear. He smiled and said, "Thank you, Aina!"</p>
+      <p>After that, we went on the big wheel with Dad. Adam was afraid at first, but he
+      was happy when he saw the small cars and houses below us. At one o'clock, we had
+      lunch. I ate a burger and drank orange juice. Adam had pizza. Mum bought us
+      chocolate ice cream. Before going home, we took some photos. I was very tired,
+      but I had a lot of fun. I want to go there again!</p>
+      <p style="text-align:right;font-weight:800;color:#6a5cff;">Aina</p>
+    </div>
+  </div>
+</div>`;
+
+function passagePast(current) {
+  let t = `A long time ago, life was different. There were many small houses and shops.
+  There were no big shopping centres. In the past, there [[6]] not many cars. People walked
+  or rode horses. The streets were [[7]] because there were many people. There [[8]] big
+  buses. Children played outside with their friends. They played games and had fun.
+  Life in the past was different [[9]] life today. People were happy with their families.`;
+  t = t.replace(/\[\[(\d+)\]\]/g, function (m, d) {
+    const active = (parseInt(d, 10) === current) ? ' active' : '';
+    return '<span class="blk' + active + '">(' + d + ') ______</span>';
+  });
+  return '<div class="passage"><h4>Life in the Past</h4><p>' + t + '</p></div>';
+}
+
+const V_RECIPE = `
+<div class="visual">
+  <div class="steps-row">
+    <div class="step"><div class="step-num">1</div><div class="step-emoji">🥣🧈🍫🥚🌾</div><div class="step-cap">Ingredients</div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-emoji">🥣🥄</div><div class="step-cap">Mix them</div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-emoji">🍪🍪🍪</div><div class="step-cap">On a tray</div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-emoji">🔥🍪</div><div class="step-cap">Bake</div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-emoji">🍪✨</div><div class="step-cap">Ready to eat</div></div>
+  </div>
+</div>`;
+
+const V_SPORTS = `
+<div class="visual">
+  <div class="poster-sports">
+    <div class="sp-title">SPORTS FUN DAY</div>
+    <div class="sp-sub">LET'S GET ACTIVE! ❤️</div>
+    <div class="sp-icons">🏃 🤸 🏓 🤾</div>
+    <div class="sp-info">
+      <div class="sp-box"><b>📅 DATE</b>24 October 2026 (Saturday)</div>
+      <div class="sp-box"><b>🕗 TIME</b>8.00 a.m. – 12.00 p.m.</div>
+      <div class="sp-box"><b>📍 VENUE</b>School Field</div>
+      <div class="sp-box"><b>🎟️ ENTRY</b>Free</div>
+    </div>
+    <div class="sp-act">🎽 Activities: Running, skipping, table tennis, gymnastics and fun games.</div>
+    <div class="sp-footer">💗 Bring your friends and have fun! 💗</div>
+  </div>
+</div>`;
+
+const ORDER_ITEMS = [
+  "Then, mix all the ingredients in a bowl.",
+  "Finally, take the biscuits out and let them cool. They are ready to eat.",
+  "First, prepare the ingredients.",
+  "After that, bake the biscuits in the oven.",
+  "Next, make small balls and put them on a tray."
+];
+const ORDER_CORRECT = [2, 0, 4, 3, 1];
+
+/* =========================================================
+   QUESTIONS
+   ========================================================= */
+const QUESTIONS = [
+  /* ---------- PART 1 ---------- */
+  {part:1,no:1,type:'mcq',marks:1,instruction:'Read the notice carefully. Choose the correct answer A, B or C.',visual:V_LIBRARY,prompt:'What should pupils do in the library?',options:['Talk loudly with friends.','Read books quietly.','Run around the library.'],answer:1,explain:'The notice says "Please speak softly. Do not run or shout." So pupils should read books quietly.'},
+  {part:1,no:2,type:'mcq',marks:1,instruction:'Read the message carefully. Choose the correct answer A, B or C.',visual:V_PHONE,prompt:'What should Sara bring to the park?',options:['a school bag','a water bottle','a football'],answer:1,explain:'Aina wrote, "Please bring your water bottle."'},
+  {part:1,no:3,type:'mcq',marks:1,instruction:'Look at the table. Choose the correct answer A, B or C.',visual:V_TIMETABLE,prompt:'When is the Art Club?',options:['Monday','Tuesday','Wednesday'],answer:1,explain:'The table shows Art Club on Tuesday at 2.00 p.m.'},
+  {part:1,no:4,type:'mcq',marks:1,instruction:'Look at the poster. Choose the correct answer A, B or C.',visual:V_YUMMY,prompt:'What will you get if you buy the special set?',options:['A burger, fries and a cup of milk.','A burger, chicken nugget and a drink.','A burger, fries and a drink.'],answer:2,explain:'The set includes a chicken burger, a packet of french fries and a cup of orange juice — a burger, fries and a drink.'},
+  {part:1,no:5,type:'mcq',marks:1,instruction:'Read the email carefully. Choose the correct answer A, B or C.',visual:V_JENNY,prompt:'Why does Jenny want to be a doctor?',options:['She wants to help sick people.','She wants to teach children.','She wants to cook food.'],answer:0,explain:'Jenny wrote, "I want to be a doctor when I grow up. I want to help sick people."'},
+
+  /* ---------- PART 2 ---------- */
+  {part:2,no:6,type:'mcq',marks:1,instruction:'Read the text and choose the correct word for the blank.',visual:passagePast(6),prompt:'In the past, there (6) ______ not many cars.',options:['was','were','is'],answer:1,explain:'"Cars" is plural and the text is in the past, so we use "were".'},
+  {part:2,no:7,type:'mcq',marks:1,instruction:'Read the text and choose the correct word for the blank.',visual:passagePast(7),prompt:'The streets were (7) ______ because there were many people.',options:['busy','quiet','empty'],answer:0,explain:'Many people means the streets were busy.'},
+  {part:2,no:8,type:'mcq',marks:1,instruction:'Read the text and choose the correct word for the blank.',visual:passagePast(8),prompt:'There (8) ______ big buses.',options:["wasn't","weren't","aren't"],answer:1,explain:'"Buses" is plural and the sentence is in the past, so we use "weren\'t".'},
+  {part:2,no:9,type:'mcq',marks:1,instruction:'Read the text and choose the correct word for the blank.',visual:passagePast(9),prompt:'Life in the past was different (9) ______ life today.',options:['from','in','on'],answer:0,explain:'We say "different from".'},
+
+  /* ---------- PART 3 ---------- */
+  {part:3,no:10,type:'mcq',marks:1,instruction:'Read the diary and choose the correct answer A, B or C.',visual:V_FUNFAIR,prompt:'Who went to the funfair with Aina?',options:['Her friends','Her teacher','Her family'],answer:2,explain:'Aina wrote, "I went to the funfair with my family."'},
+  {part:3,no:11,type:'mcq',marks:1,instruction:'Read the diary and choose the correct answer A, B or C.',visual:V_FUNFAIR,prompt:'Why did Aina buy a teddy bear for Adam?',options:['Adam did not like the games.','Adam was sad because he did not win.','Adam wanted to go home.'],answer:1,explain:'Adam did not win the teddy bear and he was sad, so Aina bought one for him.'},
+  {part:3,no:12,type:'mcq',marks:1,instruction:'Read the diary and choose the correct answer A, B or C.',visual:V_FUNFAIR,prompt:'How did Adam feel when he was on the big wheel?',options:['He was afraid, then happy.','He was happy, then afraid.','He was afraid, then tired.'],answer:0,explain:'"Adam was afraid at first, but he was happy when he saw the small cars and houses below us."'},
+  {part:3,no:13,type:'mcq',marks:1,instruction:'Read the diary and choose the correct answer A, B or C.',visual:V_FUNFAIR,prompt:'What did Aina eat?',options:['orange juice','a pizza','a burger'],answer:2,explain:'Aina wrote, "I ate a burger and drank orange juice." The question asks what she ATE — a burger.'},
+  {part:3,no:14,type:'mcq',marks:1,instruction:'Read the diary and choose the correct answer A, B or C.',visual:V_FUNFAIR,prompt:'What was the last activity Aina and her family did at the funfair?',options:['They took some photos.','They ate ice cream.','They went on the big wheel.'],answer:0,explain:'"Before going home, we took some photos." This was the last activity.'},
+
+  /* ---------- PART 4 ---------- */
+  {part:4,no:15,type:'mcq',marks:1,instruction:'Read the texts about the three houses. Choose A, B or C.',visual:V_HOUSES,prompt:'People need to climb stairs to go into this house.',options:['A. Igloo','B. Stilt House','C. Yurt'],answer:1,explain:'The stilt house has stairs to go up to the house.'},
+  {part:4,no:16,type:'mcq',marks:1,instruction:'Read the texts about the three houses. Choose A, B or C.',visual:V_HOUSES,prompt:'This house is moveable.',options:['A. Igloo','B. Stilt House','C. Yurt'],answer:2,explain:'People can take the yurt down and move it to a new place.'},
+  {part:4,no:17,type:'mcq',marks:1,instruction:'Read the texts about the three houses. Choose A, B or C.',visual:V_HOUSES,prompt:'This house keeps people warm because of its thick walls.',options:['A. Igloo','B. Stilt House','C. Yurt'],answer:0,explain:'The igloo has thick walls made of snow that help people stay warm.'},
+  {part:4,no:18,type:'mcq',marks:1,instruction:'Read the texts about the three houses. Choose A, B or C.',visual:V_HOUSES,prompt:'This house has a floor high above the ground.',options:['A. Igloo','B. Stilt House','C. Yurt'],answer:1,explain:'The stilt house is built on tall poles, so the floor is high above the ground.'},
+  {part:4,no:19,type:'mcq',marks:1,instruction:'Read the texts about the three houses. Choose A, B or C.',visual:V_HOUSES,prompt:'This house is made of wood and thick cloth.',options:['A. Igloo','B. Stilt House','C. Yurt'],answer:2,explain:'The yurt is made of wood and thick cloth.'},
+  {part:4,no:20,type:'mcq',marks:1,instruction:'Read the texts about the three houses. Choose A, B or C.',visual:V_HOUSES,prompt:'This house can protect people from floods.',options:['A. Igloo','B. Stilt House','C. Yurt'],answer:1,explain:'The high floor of the stilt house keeps it safe when there is a lot of water.'},
+
+  /* ---------- PART 5 ---------- */
+  {part:5,no:21,type:'text',marks:1,instruction:'Read the description. Write the correct word. There is one space for each letter.',prompt:'Having a lot of height.',length:4,answers:['tall'],explain:'The word is "tall".'},
+  {part:5,no:22,type:'text',marks:1,instruction:'Read the description. Write the correct word. There is one space for each letter.',prompt:'Having a lot of power.',length:6,answers:['strong'],explain:'The word is "strong".'},
+  {part:5,no:23,type:'text',marks:1,instruction:'Read the description. Write the correct word. There is one space for each letter.',prompt:'Able to move quickly.',length:4,answers:['fast'],explain:'The word is "fast".'},
+  {part:5,no:24,type:'text',marks:1,instruction:'Read the description. Write the correct word. There is one space for each letter.',prompt:'Having a lot of fat on the body.',length:3,answers:['fat'],explain:'The word is "fat".'},
+  {part:5,no:25,type:'text',marks:1,instruction:'Read the description. Write the correct word. There is one space for each letter.',prompt:'Not clean.',length:5,answers:['dirty'],explain:'The word is "dirty".'},
+
+  /* ---------- PART 6 ---------- */
+  {part:6,no:26,type:'order',marks:10,instruction:'Look at the pictures. Rearrange the sentences in the correct order to make a chocolate biscuit.',visual:V_RECIPE,prompt:'Click the sentences in the correct order (1 → 5).',items:ORDER_ITEMS,correctOrder:ORDER_CORRECT,explain:'The correct order is: First, prepare the ingredients → Then, mix all the ingredients in a bowl → Next, make small balls and put them on a tray → After that, bake the biscuits in the oven → Finally, take the biscuits out and let them cool.'},
+
+  /* ---------- PART 7 ---------- */
+  {part:7,no:27,type:'email',marks:15,instruction:'Look at the poster. Complete the email to Ismail using the information from the poster.',visual:V_SPORTS,prompt:'Complete the email below.',explain:'The event is on 24 October 2026 (Saturday) at 8.00 a.m. Activities: running, skipping, table tennis, gymnastics and fun games.'}
+];
+
+/* =========================================================
+   STATE
+   ========================================================= */
+let state = {
+  name: '', idx: 0, sel: {}, textAns: {}, picked: [], results: {}, checked: false
+};
+let currentRecord = null; /* saved record being viewed by teacher */
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+const $ = id => document.getElementById(id);
+function fmt(n){ return Number.isInteger(n) ? String(n) : n.toFixed(1); }
+function norm(s){
+  return String(s||'').toLowerCase().replace(/[’‘]/g,"'").replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim();
+}
+function escapeHTML(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function initials(name){
+  const parts = String(name||'?').trim().split(/\s+/);
+  return ((parts[0]||'')[0]||'?').toUpperCase() + ((parts[1]||'')[0]||'').toUpperCase();
+}
+function nowDate(){
+  const d = new Date();
+  return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) + ' · ' +
+         d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+}
+
+/* =========================================================
+   LOCAL STORAGE
+   ========================================================= */
+function loadRecords(){
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch(e){ return []; }
+}
+function saveRecords(list){
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); } catch(e){}
+}
+function addRecord(rec){
+  const list = loadRecords();
+  list.push(rec);
+  saveRecords(list);
+}
+function removeRecord(id){
+  const list = loadRecords().filter(r => r.id !== id);
+  saveRecords(list);
+}
+
+/* =========================================================
+   MODE NAVIGATION
+   ========================================================= */
+function showScreen(id){
+  ['modeScreen','studentLogin','teacherLogin','quizScreen','resultScreen','teacherDash']
+    .forEach(s => $(s).classList.add('hidden'));
+  $(id).classList.remove('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+$('modeStudent').addEventListener('click', () => showScreen('studentLogin'));
+$('modeTeacher').addEventListener('click', () => {
+  $('passInput').value = '';
+  $('passMsg').style.display = 'none';
+  showScreen('teacherLogin');
+  setTimeout(()=>$('passInput').focus(), 100);
+});
+$('backToMode1').addEventListener('click', () => showScreen('modeScreen'));
+$('backToMode2').addEventListener('click', () => showScreen('modeScreen'));
+
+/* =========================================================
+   STUDENT START
+   ========================================================= */
+$('startBtn').addEventListener('click', () => {
+  const n = $('nameInput').value.trim();
+  state.name = n || 'Student';
+  $('whoPill').textContent = '👤 ' + state.name;
+  state.idx = 0;
+  state.sel = {}; state.textAns = {}; state.picked = []; state.results = {};
+  showScreen('quizScreen');
+  renderQuestion();
+});
+$('nameInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('startBtn').click(); });
+
+/* =========================================================
+   TEACHER LOGIN
+   ========================================================= */
+$('loginBtn').addEventListener('click', tryTeacherLogin);
+$('passInput').addEventListener('keydown', e => { if (e.key === 'Enter') tryTeacherLogin(); });
+function tryTeacherLogin(){
+  const p = $('passInput').value;
+  if (p === TEACHER_PASSWORD){
+    $('passMsg').style.display = 'none';
+    showScreen('teacherDash');
+    renderDashboard();
+  } else {
+    $('passMsg').style.display = 'block';
+    $('passInput').value = '';
+    $('passInput').focus();
+  }
+}
+$('logoutBtn').addEventListener('click', () => showScreen('modeScreen'));
+
+/* =========================================================
+   QUIZ — RENDER
+   ========================================================= */
+function renderQuestion(){
+  const q = QUESTIONS[state.idx];
+  state.checked = false;
+
+  $('partPill').textContent = 'Part ' + q.part;
+  $('partPill').className = 'pill' + (q.part >= 5 ? ' g4' : q.part >= 3 ? ' g3' : '');
+  updateScorePill();
+
+  const total = QUESTIONS.length;
+  const pct = Math.round((state.idx / total) * 100);
+  $('progressBar').style.width = pct + '%';
+  $('progressPct').textContent = pct + '%';
+  $('progressLabel').textContent = 'Question ' + (state.idx + 1) + ' of ' + total +
+    '  ·  ' + q.marks + ' mark' + (q.marks > 1 ? 's' : '');
+
+  let html = '';
+  html += '<span class="qtag">Part ' + q.part + ' · Question ' + q.no + '</span>';
+  html += '<div class="instruction">' + escapeHTML(q.instruction) + '</div>';
+  if (q.visual) html += q.visual;
+  html += '<div class="qtext">' + escapeHTML(q.prompt) + '</div>';
+
+  if (q.type === 'mcq'){
+    html += '<div class="options" id="optionsBox">';
+    q.options.forEach((op,i) => {
+      const letter = String.fromCharCode(65+i);
+      html += '<button class="opt" data-i="'+i+'"><span class="badge">'+letter+'</span><span>'+escapeHTML(op)+'</span></button>';
+    });
+    html += '</div>';
+  }
+
+  if (q.type === 'text'){
+    const underscores = '_ '.repeat(q.length - 1).trim();
+    html += '<div class="input-row" id="inputRow">' +
+              '<input id="textInput" type="text" autocomplete="off" spellcheck="false" placeholder="'+underscores+'" maxlength="20">' +
+            '</div>';
+    html += '<div style="font-size:12.5px;color:#6c7293;font-weight:700;margin-top:8px;">✏️ ' + q.length + ' letters</div>';
+  }
+
+  if (q.type === 'order'){
+    html += '<div class="order-grid">' +
+              '<div class="order-col"><h5>Sentences</h5><div class="chips" id="poolBox"></div></div>' +
+              '<div class="order-col"><h5>Your order</h5><div class="chips" id="pickedBox"></div></div>' +
+            '</div>';
+  }
+
+  if (q.type === 'email'){
+    html += '<div class="email-card">' +
+      '<div class="email-head"><b>To:</b> ismail@wmail.com<br><b>Subject:</b> Sports Fun Day</div>' +
+      '<div class="email-body">' +
+        '<p>Hi Ismail,</p>' +
+        '<p>I saw a poster about Sports Fun Day. The event will be held on ' +
+          '<input class="fill" id="p7a" placeholder="(i) date" autocomplete="off"> at ' +
+          '<input class="fill" id="p7b" placeholder="(ii) time" autocomplete="off">.</p>' +
+        '<p>The event starts at <input class="fill" id="p7c" placeholder="(ii) time" autocomplete="off"> ' +
+          'and ends at 12.00 p.m. We can enjoy fun activities such as ' +
+          '<input class="fill" id="p7d" placeholder="(iii) activity" autocomplete="off"> and ' +
+          '<input class="fill" id="p7e" placeholder="(iv) activity" autocomplete="off">.</p>' +
+        '<p>Hope you can join me.</p>' +
+        '<p>Your friend,<br><b>' + escapeHTML(state.name) + '</b></p>' +
+      '</div>' +
+    '</div>';
+  }
+
+  html += '<div class="feedback" id="feedback"></div>';
+  $('qarea').innerHTML = html;
+
+  /* Attach events */
+  if (q.type === 'mcq'){
+    const box = $('optionsBox');
+    box.addEventListener('click', e => {
+      const btn = e.target.closest('.opt');
+      if (!btn || state.checked) return;
+      [...box.children].forEach(c => c.classList.remove('sel'));
+      btn.classList.add('sel');
+      state.sel[state.idx] = parseInt(btn.dataset.i,10);
+      $('actionBtn').disabled = false;
+    });
+  }
+  if (q.type === 'text'){
+    const inp = $('textInput');
+    if (state.textAns[state.idx]) inp.value = state.textAns[state.idx];
+    inp.addEventListener('input', () => {
+      state.textAns[state.idx] = inp.value;
+      $('actionBtn').disabled = inp.value.trim() === '';
+    });
+    if (inp.value.trim() !== '') $('actionBtn').disabled = false;
+    setTimeout(()=>inp.focus(),60);
+  }
+  if (q.type === 'order'){ state.picked = []; renderOrder(); }
+  if (q.type === 'email'){
+    ['p7a','p7b','p7c','p7d','p7e'].forEach(id => $(id).addEventListener('input', updateEmailBtn));
+    updateEmailBtn();
+  }
+
+  if (q.type === 'mcq')      $('actionBtn').disabled = (state.sel[state.idx] == null);
+  else if (q.type === 'text') $('actionBtn').disabled = ($('textInput').value.trim() === '');
+  else if (q.type === 'order') $('actionBtn').disabled = false;
+  else if (q.type === 'email') updateEmailBtn();
+
+  $('actionBtn').textContent = 'Check Answer';
+  $('actionBtn').className = 'btn btn-primary';
+  $('resetBtn').style.visibility = 'visible';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderOrder(){
+  const q = QUESTIONS[state.idx];
+  const poolBox = $('poolBox'), pickedBox = $('pickedBox');
+  if (!poolBox || !pickedBox) return;
+
+  let poolHTML = '';
+  q.items.forEach((txt,i) => {
+    const isPicked = state.picked.indexOf(i) !== -1;
+    poolHTML += '<button class="chip'+(isPicked?' picked':'')+'" data-i="'+i+'"'+(isPicked?' disabled':'')+'>' +
+                  '<span class="num">'+(isPicked?'✓':'＋')+'</span><span>'+escapeHTML(txt)+'</span></button>';
+  });
+  poolBox.innerHTML = poolHTML || '<div style="font-size:13px;color:#6c7293;font-weight:700;">All sentences used.</div>';
+
+  let pickedHTML = '';
+  if (state.picked.length === 0){
+    pickedHTML = '<div style="font-size:13px;color:#6c7293;font-weight:700;padding:10px 2px;">Click a sentence above to add it here.</div>';
+  } else {
+    state.picked.forEach((itemIdx,pos) => {
+      pickedHTML += '<button class="chip picked" data-pos="'+pos+'">' +
+                      '<span class="num">'+(pos+1)+'</span><span>'+escapeHTML(q.items[itemIdx])+'</span></button>';
+    });
+  }
+  pickedBox.innerHTML = pickedHTML;
+
+  poolBox.onclick = e => {
+    if (state.checked) return;
+    const btn = e.target.closest('.chip');
+    if (!btn || btn.disabled) return;
+    state.picked.push(parseInt(btn.dataset.i,10));
+    renderOrder();
+  };
+  pickedBox.onclick = e => {
+    if (state.checked) return;
+    const btn = e.target.closest('.chip');
+    if (!btn) return;
+    state.picked.splice(parseInt(btn.dataset.pos,10),1);
+    renderOrder();
+  };
+}
+
+function updateEmailBtn(){
+  const ids = ['p7a','p7b','p7c','p7d','p7e'];
+  const allFilled = ids.every(id => $(id).value.trim() !== '');
+  $('actionBtn').disabled = !allFilled;
+}
+function updateScorePill(){
+  let earned = 0;
+  Object.keys(state.results).forEach(k => earned += state.results[k].earned);
+  $('scorePill').textContent = '⭐ ' + fmt(earned) + ' / 50';
+}
+
+/* =========================================================
+   QUIZ — CHECK / NAVIGATE
+   ========================================================= */
+$('actionBtn').addEventListener('click', () => { state.checked ? nextQuestion() : checkAnswer(); });
+$('resetBtn').addEventListener('click', () => {
+  const q = QUESTIONS[state.idx];
+  state.checked = false;
+  if (q.type === 'mcq') delete state.sel[state.idx];
+  if (q.type === 'text') delete state.textAns[state.idx];
+  if (q.type === 'order') state.picked = [];
+  renderQuestion();
+});
+
+function showFeedback(ok, html){
+  const fb = $('feedback');
+  fb.className = 'feedback show ' + (ok ? 'good' : 'bad');
+  fb.innerHTML = html;
+}
+
+function checkAnswer(){
+  const q = QUESTIONS[state.idx];
+  state.checked = true;
+
+  if (q.type === 'mcq'){
+    const chosen = state.sel[state.idx];
+    const ok = chosen === q.answer;
+    state.results[state.idx] = { earned: ok ? q.marks : 0, correct: ok, marks: q.marks, chosen: chosen };
+    const box = $('optionsBox');
+    [...box.children].forEach(c => {
+      const i = parseInt(c.dataset.i,10);
+      c.disabled = true; c.classList.remove('sel');
+      if (i === q.answer) c.classList.add('correct');
+      else if (i === chosen) c.classList.add('wrong');
+    });
+    showFeedback(ok, '<span class="fb-title">'+(ok ? '✅ Correct! +1 mark' : '❌ Not quite. +0 marks')+'</span>'+escapeHTML(q.explain));
+  }
+
+  if (q.type === 'text'){
+    const val = ($('textInput').value||'').trim();
+    const ok = q.answers.some(a => norm(a) === norm(val));
+    state.results[state.idx] = { earned: ok ? 1 : 0, correct: ok, marks: 1, chosen: val };
+    const row = $('inputRow'); row.classList.add(ok ? 'ok' : 'no');
+    $('textInput').disabled = true;
+    showFeedback(ok, '<span class="fb-title">'+(ok ? '✅ Correct! +1 mark' : '❌ The correct answer is "'+q.answers[0]+'".')+'</span>'+escapeHTML(q.explain));
+  }
+
+  if (q.type === 'order'){
+    let correctPositions = 0;
+    for (let i=0;i<5;i++) if (state.picked[i] === q.correctOrder[i]) correctPositions++;
+    const earned = correctPositions * 2;
+    const ok = correctPositions === 5;
+    state.results[state.idx] = { earned: earned, correct: ok, marks: 10, chosen: correctPositions + '/5' };
+    const pickedBox = $('pickedBox');
+    [...pickedBox.children].forEach((c,i) => {
+      if (c.dataset.pos == null) return;
+      c.classList.add(state.picked[i] === q.correctOrder[i] ? 'ok' : 'no');
+      c.disabled = true;
+    });
+    [...$('poolBox').children].forEach(c => c.disabled = true);
+    const correctSentences = q.correctOrder.map(i => '<li>'+escapeHTML(q.items[i])+'</li>').join('');
+    showFeedback(ok, '<span class="fb-title">'+(ok ? '✅ Perfect! +10 marks' : '📝 You got '+correctPositions+'/5 steps right. +'+fmt(earned)+' marks')+'</span>' +
+      '<div style="margin-top:6px;">The correct order is:</div><ol style="margin:6px 0 0 18px;">'+correctSentences+'</ol>');
+  }
+
+  if (q.type === 'email'){
+    const v = { a:$('p7a').value, b:$('p7b').value, c:$('p7c').value, d:$('p7d').value, e:$('p7e').value };
+    const na = norm(v.a);
+    const dateOK = na.indexOf('24') !== -1 && na.indexOf('october') !== -1 && na.indexOf('2026') !== -1;
+    const timeOK = s => { const t = norm(s).replace(/\s/g,''); return t.indexOf('8')!==-1 && t.indexOf('am')!==-1; };
+    const time1OK = timeOK(v.b), time2OK = timeOK(v.c);
+    const KEYS = ['running','run','skip','table tennis','gymnastic','fun game','badminton','jogging'];
+    const actKey = s => { const n = norm(s); for (const k of KEYS) if (n.indexOf(k)!==-1) return k; return null; };
+    const k1 = actKey(v.d), k2 = actKey(v.e);
+    const act1OK = k1 !== null, act2OK = k2 !== null && k2 !== k1;
+    let earned = (dateOK?3:0)+(time1OK?3:0)+(time2OK?3:0)+(act1OK?3:0)+(act2OK?3:0);
+    const ok = earned === 15;
+    state.results[state.idx] = { earned: earned, correct: ok, marks: 15, chosen: earned + '/15' };
+    const map = { p7a:dateOK, p7b:time1OK, p7c:time2OK, p7d:act1OK, p7e:act2OK };
+    Object.keys(map).forEach(id => { const el = $(id); el.classList.add(map[id]?'ok':'no'); el.disabled = true; });
+    showFeedback(ok, '<span class="fb-title">'+(ok ? '✅ Excellent! +15 marks' : '📝 You scored '+fmt(earned)+' / 15 marks')+'</span>' +
+      '<div style="margin-top:4px;">'+(dateOK?'✅':'❌')+' Date: <b>24 October 2026 (Saturday)</b><br>' +
+      (time1OK&&time2OK?'✅':'❌')+' Time: <b>8.00 a.m.</b><br>' +
+      (act1OK&&act2OK?'✅':'❌')+' Activities: <b>running, skipping, table tennis, gymnastics and fun games</b></div>');
+  }
+
+  updateScorePill();
+  $('actionBtn').disabled = false;
+  $('actionBtn').textContent = (state.idx === QUESTIONS.length - 1) ? '🏁 See My Results' : 'Next Question →';
+  $('resetBtn').style.visibility = 'hidden';
+
+  const total = QUESTIONS.length;
+  const pct = Math.round(((state.idx + 1) / total) * 100);
+  $('progressBar').style.width = pct + '%';
+  $('progressPct').textContent = pct + '%';
+
+  const fb = $('feedback');
+  if (fb) fb.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function nextQuestion(){
+  if (state.idx < QUESTIONS.length - 1){ state.idx++; renderQuestion(); }
+  else showResults();
+}
+
+/* =========================================================
+   RESULTS
+   ========================================================= */
+function showResults(){
+  showScreen('resultScreen');
+  let total = 0;
+  QUESTIONS.forEach((q,i) => { if (state.results[i]) total += state.results[i].earned; });
+  total = Math.round(total * 10) / 10;
+
+  const pct = Math.round((total / 50) * 100);
+  const ring = $('scoreRing');
+  let cur = 0;
+  const anim = setInterval(() => {
+    cur += Math.max(1, Math.round(pct / 30));
+    if (cur >= pct){ cur = pct; clearInterval(anim); }
+    ring.style.background = 'conic-gradient(#6a5cff '+cur+'%, #eeecfb 0)';
+  }, 22);
+  ring.style.background = 'conic-gradient(#6a5cff '+pct+'%, #eeecfb 0)';
+  $('finalScore').textContent = fmt(total);
+
+  let title, grade;
+  if (pct >= 80){ title = '🌟 Outstanding!'; grade = 'A · Excellent work!'; }
+  else if (pct >= 60){ title = '😊 Well done!'; grade = 'B · Good job!'; }
+  else if (pct >= 40){ title = '🙂 Good try!'; grade = 'C · Keep going!'; }
+  else { title = '💪 Never give up!'; grade = 'D · Practise more!'; }
+  $('resultTitle').textContent = title;
+  $('gradePill').textContent = grade + '  (' + pct + '%)';
+
+  const partsInfo = [
+    {p:1,max:5,label:'Part 1 · Short texts (Q1–5)'},
+    {p:2,max:4,label:'Part 2 · Life in the Past (Q6–9)'},
+    {p:3,max:5,label:'Part 3 · A Fun Day at the Funfair (Q10–14)'},
+    {p:4,max:6,label:'Part 4 · Houses Around the World (Q15–20)'},
+    {p:5,max:5,label:'Part 5 · Adjectives (Q21–25)'},
+    {p:6,max:10,label:'Part 6 · Chocolate Biscuit Recipe (Q26)'},
+    {p:7,max:15,label:'Part 7 · Sports Fun Day Email (Q27)'}
+  ];
+  let bd = '';
+  partsInfo.forEach(info => {
+    let got = 0;
+    QUESTIONS.forEach((q,i) => { if (q.part === info.p && state.results[i]) got += state.results[i].earned; });
+    const w = Math.round((got / info.max) * 100);
+    bd += '<div class="bd-row"><span style="flex:0 0 auto;">'+escapeHTML(info.label)+'</span>' +
+          '<span class="bar"><i style="width:'+w+'%"></i></span>' +
+          '<span style="flex:0 0 auto;color:#5b4bd6;">'+fmt(got)+' / '+info.max+'</span></div>';
+  });
+  bd += '<div class="bd-row total"><span><b>TOTAL</b></span><span class="bar"></span><span style="color:#6a5cff;font-weight:800;">'+fmt(total)+' / 50</span></div>';
+  $('breakdown').innerHTML = bd;
+
+  let rv = '<h3>📋 Review your answers</h3>';
+  QUESTIONS.forEach((q,i) => {
+    const r = state.results[i];
+    if (!r) return;
+    let yourAns = '';
+    if (q.type === 'mcq') yourAns = state.sel[i] != null ? q.options[state.sel[i]] : '(no answer)';
+    else if (q.type === 'text') yourAns = state.textAns[i] || '(no answer)';
+    else if (q.type === 'order') yourAns = r.chosen + ' steps correct';
+    else yourAns = r.chosen + ' marks';
+    rv += '<div class="rev-item '+(r.correct?'good':'bad')+'">' +
+            '<span class="ic">'+(r.correct?'✓':'✕')+'</span>' +
+            '<span><b>Q'+q.no+':</b> '+escapeHTML(q.prompt.length>70 ? q.prompt.slice(0,70)+'…' : q.prompt) +
+            '<br><span style="color:#6c7293;">Your answer: '+escapeHTML(yourAns)+'</span>' +
+            '<br><span class="ans">✓ '+escapeHTML(q.explain)+'</span>' +
+            '<br><span style="color:#6c7293;">Marks: '+fmt(r.earned)+' / '+q.marks+'</span></span></div>';
+  });
+  $('review').innerHTML = rv;
+
+  /* Reset save button */
+  $('saveBtn').disabled = false;
+  $('saveBtn').textContent = '💾 Save to Teacher Records';
+  $('saveMsg').style.display = 'none';
+
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* =========================================================
+   SAVE RECORD
+   ========================================================= */
+$('saveBtn').addEventListener('click', () => {
+  const rec = buildRecord();
+  addRecord(rec);
+  $('saveBtn').disabled = true;
+  $('saveBtn').textContent = '✅ Saved!';
+  $('saveMsg').style.display = 'block';
+  $('saveMsg').style.color = '#0b6b41';
+  $('saveMsg').textContent = '✔ Saved to teacher records on ' + rec.date;
+});
+
+function buildRecord(){
+  let total = 0;
+  QUESTIONS.forEach((q,i) => { if (state.results[i]) total += state.results[i].earned; });
+  total = Math.round(total * 10) / 10;
+
+  const parts = {};
+  for (let p = 1; p <= 7; p++){
+    let got = 0, max = 0;
+    QUESTIONS.forEach((q,i) => {
+      if (q.part === p){
+        max += q.marks;
+        if (state.results[i]) got += state.results[i].earned;
+      }
+    });
+    parts[p] = { got: Math.round(got*10)/10, max: max };
+  }
+
+  const answers = QUESTIONS.map((q,i) => {
+    const r = state.results[i] || { earned:0, correct:false, marks:q.marks, chosen:null };
+    let yourAns = '';
+    if (q.type === 'mcq') yourAns = (state.sel[i] != null) ? q.options[state.sel[i]] : '(no answer)';
+    else if (q.type === 'text') yourAns = state.textAns[i] || '(no answer)';
+    else if (q.type === 'order') yourAns = r.chosen || '—';
+    else if (q.type === 'email') yourAns = r.chosen || '—';
+    return {
+      no: q.no, part: q.part, type: q.type, marks: q.marks,
+      prompt: q.prompt, yourAns: yourAns,
+      correct: r.correct, earned: r.earned,
+      correctAnswer: q.type === 'mcq' ? q.options[q.answer] :
+                     q.type === 'text' ? q.answers[0] :
+                     q.type === 'order' ? 'Correct order of 5 steps' : 'See model email',
+      explain: q.explain
+    };
+  });
+
+  return {
+    id: 'rec_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+    name: state.name,
+    date: nowDate(),
+    total: total,
+    parts: parts,
+    answers: answers
+  };
+}
+
+/* =========================================================
+   TEACHER DASHBOARD
+   ========================================================= */
+function renderDashboard(){
+  const list = loadRecords();
+
+  /* Stats */
+  const totalStudents = list.length;
+  const avg = totalStudents ? (list.reduce((s,r)=>s+r.total,0)/totalStudents).toFixed(1) : '—';
+  const highest = totalStudents ? Math.max(...list.map(r=>r.total)) : '—';
+  const lowest  = totalStudents ? Math.min(...list.map(r=>r.total)) : '—';
+
+  $('statsGrid').innerHTML =
+    '<div class="stat-box"><div class="num">'+totalStudents+'</div><div class="lbl">Students</div></div>' +
+    '<div class="stat-box"><div class="num">'+avg+'</div><div class="lbl">Average / 50</div></div>' +
+    '<div class="stat-box"><div class="num">'+highest+'</div><div class="lbl">Highest</div></div>' +
+    '<div class="stat-box"><div class="num">'+lowest+'</div><div class="lbl">Lowest</div></div>';
+
+  /* List */
+  const wrap = $('studList');
+  if (!list.length){
+    wrap.innerHTML = '<div class="empty"><div class="big">📭</div>No student records yet.<br>Ask students to complete the quiz and click <b>“Save to Teacher Records”</b>.</div>';
+    return;
+  }
+
+  /* sort newest first */
+  const sorted = list.slice().sort((a,b) => b.id.localeCompare(a.id));
+
+  wrap.innerHTML = sorted.map(r => {
+    const pct = Math.round((r.total/50)*100);
+    const color = pct>=80 ? '#0b8a52' : pct>=60 ? '#5b4bd6' : pct>=40 ? '#d97706' : '#b42318';
+    return '<div class="stud-row" data-id="'+r.id+'">' +
+             '<div class="av">'+escapeHTML(initials(r.name))+'</div>' +
+             '<div class="info"><b>'+escapeHTML(r.name)+'</b><small>'+escapeHTML(r.date)+'</small></div>' +
+             '<div class="sc" style="color:'+color+'">'+fmt(r.total)+'<small>/50</small></div>' +
+             '<button class="btn btn-primary btn-sm" data-view="'+r.id+'">View</button>' +
+             '<button class="btn btn-ghost btn-sm" data-del="'+r.id+'" title="Delete">🗑</button>' +
+           '</div>';
+  }).join('');
+
+  /* row events */
+  wrap.querySelectorAll('[data-view]').forEach(btn => {
+    btn.addEventListener('click', () => openStudentDetail(btn.dataset.view));
+  });
+  wrap.querySelectorAll('[data-del]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (confirm('Delete this student record?')){
+        removeRecord(btn.dataset.del);
+        renderDashboard();
+      }
+    });
+  });
+  wrap.querySelectorAll('.stud-row').forEach(row => {
+    row.addEventListener('click', e => {
+      if (e.target.closest('button')) return;
+      openStudentDetail(row.dataset.id);
+    });
+  });
+}
+
+$('clearAllBtn').addEventListener('click', () => {
+  if (confirm('Delete ALL student records? This cannot be undone.')){
+    saveRecords([]);
+    renderDashboard();
+  }
+});
+$('backToList').addEventListener('click', () => {
+  $('dashDetail').classList.add('hidden');
+  $('dashList').classList.remove('hidden');
+  renderDashboard();
+});
+
+/* =========================================================
+   STUDENT DETAIL (Teacher view)
+   ========================================================= */
+function openStudentDetail(id){
+  const rec = loadRecords().find(r => r.id === id);
+  if (!rec) return;
+  currentRecord = rec;
+
+  $('dashList').classList.add('hidden');
+  $('dashDetail').classList.remove('hidden');
+
+  $('detName').textContent = '🧒 ' + rec.name;
+  $('detDate').textContent = '📅 ' + rec.date;
+  $('detScore').textContent = fmt(rec.total) + ' / 50';
+
+  /* breakdown */
+  const partsInfo = [
+    {p:1,label:'Part 1 · Short texts'},
+    {p:2,label:'Part 2 · Life in the Past'},
+    {p:3,label:'Part 3 · Funfair Diary'},
+    {p:4,label:'Part 4 · Houses Around the World'},
+    {p:5,label:'Part 5 · Adjectives'},
+    {p:6,label:'Part 6 · Chocolate Biscuit Recipe'},
+    {p:7,label:'Part 7 · Sports Fun Day Email'}
+  ];
+  let bd = '';
+  partsInfo.forEach(info => {
+    const d = rec.parts[info.p] || {got:0,max:0};
+    const w = d.max ? Math.round((d.got/d.max)*100) : 0;
+    bd += '<div class="bd-row"><span style="flex:0 0 auto;">'+escapeHTML(info.label)+'</span>' +
+          '<span class="bar"><i style="width:'+w+'%"></i></span>' +
+          '<span style="flex:0 0 auto;color:#5b4bd6;">'+fmt(d.got)+' / '+d.max+'</span></div>';
+  });
+  $('detBreakdown').innerHTML = bd;
+
+  /* wrong answers */
+  const wrongs = rec.answers.filter(a => !a.correct);
+  let wb = '<h4>❌ Wrong Answers ('+wrongs.length+')</h4>';
+  if (!wrongs.length){
+    wb += '<div style="background:#fff;border-radius:12px;padding:14px;font-weight:800;color:#0b6b41;text-align:center;">🎉 Perfect! All answers are correct.</div>';
+  } else {
+    wrongs.forEach(a => {
+      wb += '<div class="wrong-item">' +
+              '<b>Q'+a.no+' (Part '+a.part+')</b> · '+a.marks+' mark'+(a.marks>1?'s':'')+'<br>' +
+              escapeHTML(a.prompt) +
+              '<br><span style="color:#b42318;">❌ Student answered: '+escapeHTML(String(a.yourAns))+'</span>' +
+              '<br><span class="corr">✔ Correct: '+escapeHTML(String(a.correctAnswer))+'</span>' +
+              '<br><span style="color:#6c7293;font-size:12.5px;">💡 '+escapeHTML(a.explain)+'</span>' +
+            '</div>';
+    });
+  }
+  $('detWrongBox').innerHTML = wb;
+
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* =========================================================
+   PDF GENERATION
+   ========================================================= */
+function makePDF(record){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const pageW = 210;
+  let y = 0;
+
+  const addHeader = () => {
+    doc.setFillColor(106, 92, 255);
+    doc.rect(0, 0, pageW, 22, 'F');
+    doc.setTextColor(255,255,255);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(14);
+    doc.text('PASA Year 3 · Bahasa Inggeris (013)', 14, 10);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(9.5);
+    doc.text('Pentaksiran Akhir Sesi Akademik · Tahun 3 · 2026', 14, 16);
+    y = 30;
+    doc.setTextColor(30,34,70);
+  };
+
+  const addFooter = () => {
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++){
+      doc.setPage(i);
+      doc.setFontSize(8.5);
+      doc.setTextColor(120,125,150);
+      doc.text('Page ' + i + ' of ' + pageCount, pageW - 14, 290, { align: 'right' });
+      doc.text('Generated ' + new Date().toLocaleString('en-GB'), 14, 290);
+    }
+  };
+
+  const checkPage = (needed) => {
+    if (y + needed > 280){
+      doc.addPage();
+      y = 20;
+    }
+  };
+
+  addHeader();
+
+  /* Student card */
+  doc.setDrawColor(232,232,246);
+  doc.setFillColor(247,247,254);
+  doc.roundedRect(14, y, pageW-28, 26, 3, 3, 'FD');
+  doc.setFont('helvetica','bold'); doc.setFontSize(15); doc.setTextColor(30,34,70);
+  doc.text('Student: ' + record.name, 20, y + 9);
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(108,114,147);
+  doc.text('Date: ' + record.date, 20, y + 16);
+  doc.setFont('helvetica','bold'); doc.setFontSize(20); doc.setTextColor(106,92,255);
+  doc.text(fmt(record.total) + ' / 50', pageW - 20, y + 12, { align: 'right' });
+  const pct = Math.round((record.total/50)*100);
+  doc.setFontSize(10); doc.setTextColor(108,114,147);
+  doc.text(pct + '%  ·  Grade ' + (pct>=80?'A':pct>=60?'B':pct>=40?'C':'D'), pageW - 20, y + 19, { align: 'right' });
+  y += 34;
+
+  /* Part breakdown */
+  doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(30,34,70);
+  doc.text('Part Breakdown', 14, y);
+  y += 6;
+
+  const partsInfo = [
+    {p:1,label:'Part 1 · Short texts (Q1–5)'},
+    {p:2,label:'Part 2 · Life in the Past (Q6–9)'},
+    {p:3,label:'Part 3 · Funfair Diary (Q10–14)'},
+    {p:4,label:'Part 4 · Houses Around the World (Q15–20)'},
+    {p:5,label:'Part 5 · Adjectives (Q21–25)'},
+    {p:6,label:'Part 6 · Chocolate Biscuit Recipe (Q26)'},
+    {p:7,label:'Part 7 · Sports Fun Day Email (Q27)'}
+  ];
+
+  partsInfo.forEach(info => {
+    const d = record.parts[info.p] || {got:0,max:0};
+    checkPage(9);
+    doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(30,34,70);
+    doc.text(info.label, 16, y);
+    doc.setFont('helvetica','bold');
+    doc.text(fmt(d.got) + ' / ' + d.max, pageW - 16, y, { align: 'right' });
+
+    /* bar */
+    const barX = 16, barY = y + 2, barW = pageW - 32, barH = 2.5;
+    doc.setFillColor(238,236,251);
+    doc.roundedRect(barX, barY, barW, barH, 1.5, 1.5, 'F');
+    const w = d.max ? Math.max(2, (d.got/d.max) * barW) : 2;
+    doc.setFillColor(106,92,255);
+    doc.roundedRect(barX, barY, w, barH, 1.5, 1.5, 'F');
+
+    y += 8;
+  });
+
+  y += 4;
+  checkPage(14);
+  doc.setDrawColor(232,232,246);
+  doc.setFillColor(247,247,254);
+  doc.roundedRect(14, y, pageW-28, 12, 2, 2, 'FD');
+  doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(106,92,255);
+  doc.text('TOTAL', 18, y + 8);
+  doc.text(fmt(record.total) + ' / 50', pageW - 18, y + 8, { align: 'right' });
+  y += 20;
+
+  /* Wrong answers */
+  const wrongs = record.answers.filter(a => !a.correct);
+  doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(180,35,24);
+  doc.text('Wrong Answers (' + wrongs.length + ')', 14, y);
+  y += 7;
+
+  if (!wrongs.length){
+    doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(11,107,65);
+    doc.text('Perfect! All answers are correct.', 16, y);
+    y += 8;
+  } else {
+    wrongs.forEach(a => {
+      const promptLines = doc.splitTextToSize('Q' + a.no + ' (Part ' + a.part + ', ' + a.marks + ' mark' + (a.marks>1?'s':'') + '): ' + a.prompt, pageW - 32);
+      const yourLines = doc.splitTextToSize('Student answered: ' + String(a.yourAns), pageW - 32);
+      const corrLines = doc.splitTextToSize('Correct: ' + String(a.correctAnswer), pageW - 32);
+      const expLines  = doc.splitTextToSize('Explanation: ' + a.explain, pageW - 32);
+      const blockH = (promptLines.length + yourLines.length + corrLines.length + expLines.length) * 4.6 + 10;
+      checkPage(blockH);
+
+      /* light box */
+      doc.setDrawColor(255,213,213);
+      doc.setFillColor(255,245,245);
+      doc.roundedRect(14, y - 4, pageW - 28, blockH, 2, 2, 'FD');
+
+      doc.setFont('helvetica','bold'); doc.setFontSize(9.5); doc.setTextColor(30,34,70);
+      doc.text(promptLines, 18, y + 2); y += promptLines.length * 4.6 + 1;
+
+      doc.setFont('helvetica','normal'); doc.setTextColor(180,35,24);
+      doc.text(yourLines, 18, y + 2); y += yourLines.length * 4.6 + 1;
+
+      doc.setTextColor(11,107,65); doc.setFont('helvetica','bold');
+      doc.text(corrLines, 18, y + 2); y += corrLines.length * 4.6 + 1;
+
+      doc.setTextColor(108,114,147); doc.setFont('helvetica','italic'); doc.setFontSize(8.8);
+      doc.text(expLines, 18, y + 2); y += expLines.length * 4.4 + 6;
+    });
+  }
+
+  addFooter();
+  return doc;
+}
+
+/* PDF for one student */
+$('pdfOneBtn').addEventListener('click', () => {
+  if (!currentRecord) return;
+  const doc = makePDF(currentRecord);
+  const safe = String(currentRecord.name).replace(/[^a-z0-9]/gi,'_');
+  doc.save('PASA_Y3_English_' + safe + '.pdf');
+});
+
+$('printOneBtn').addEventListener('click', () => window.print());
+
+/* PDF for all students */
+$('pdfAllBtn').addEventListener('click', () => {
+  const list = loadRecords().slice().sort((a,b) => b.id.localeCompare(a.id));
+  if (!list.length){ alert('No student records to export.'); return; }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:'mm', format:'a4' });
+  const pageW = 210;
+  const pageH = 297;
+  let y = 0;
+
+  /* Cover page */
+  doc.setFillColor(106,92,255);
+  doc.rect(0,0,pageW,pageH,'F');
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold'); doc.setFontSize(26);
+  doc.text('PASA Year 3 · 2026', pageW/2, 90, { align:'center' });
+  doc.setFontSize(18);
+  doc.text('Bahasa Inggeris (013)', pageW/2, 105, { align:'center' });
+  doc.setFontSize(13); doc.setFont('helvetica','normal');
+  doc.text('Class Report — All Students', pageW/2, 120, { align:'center' });
+  doc.setFontSize(11);
+  doc.text('Total Students: ' + list.length, pageW/2, 140, { align:'center' });
+  const avg = (list.reduce((s,r)=>s+r.total,0)/list.length).toFixed(1);
+  const hi  = Math.max(...list.map(r=>r.total));
+  const lo  = Math.min(...list.map(r=>r.total));
+  doc.text('Average: ' + avg + ' / 50', pageW/2, 150, { align:'center' });
+  doc.text('Highest: ' + hi + '   ·   Lowest: ' + lo, pageW/2, 158, { align:'center' });
+  doc.setFontSize(9.5);
+  doc.text('Generated ' + new Date().toLocaleString('en-GB'), pageW/2, 270, { align:'center' });
+
+  /* Summary table */
+  doc.addPage();
+  doc.setFillColor(106,92,255);
+  doc.rect(0,0,pageW,16,'F');
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold'); doc.setFontSize(13);
+  doc.text('Summary — All Students', 14, 10);
+
+  y = 26;
+  doc.setTextColor(30,34,70); doc.setFontSize(10.5);
+  doc.setFont('helvetica','bold');
+  doc.text('#', 16, y);
+  doc.text('Name', 26, y);
+  doc.text('Date', 100, y);
+  doc.text('Score', 160, y);
+  doc.text('Grade', 185, y);
+  y += 3;
+  doc.setDrawColor(232,232,246);
+  doc.line(14, y, pageW-14, y);
+  y += 6;
+
+  doc.setFont('helvetica','normal'); doc.setFontSize(10);
+  list.forEach((r,i) => {
+    if (y > 275){ doc.addPage(); y = 20; }
+    const pct = Math.round((r.total/50)*100);
+    const grade = pct>=80?'A':pct>=60?'B':pct>=40?'C':'D';
+    doc.text(String(i+1), 16, y);
+    doc.text(String(r.name).slice(0,35), 26, y);
+    doc.text(String(r.date).slice(0,22), 100, y);
+    doc.setFont('helvetica','bold');
+    doc.text(fmt(r.total) + ' / 50', 160, y);
+    doc.text(grade, 187, y);
+    doc.setFont('helvetica','normal');
+    y += 6.5;
+  });
+
+  /* Individual pages */
+  list.forEach(r => {
+    doc.addPage();
+    let yy = 0;
+    doc.setFillColor(106,92,255);
+    doc.rect(0,0,pageW,20,'F');
+    doc.setTextColor(255,255,255);
+    doc.setFont('helvetica','bold'); doc.setFontSize(13);
+    doc.text('Student Report', 14, 9);
+    doc.setFont('helvetica','normal'); doc.setFontSize(9.5);
+    doc.text('PASA Year 3 · Bahasa Inggeris (013)', 14, 15);
+
+    yy = 30;
+    doc.setTextColor(30,34,70);
+    doc.setFont('helvetica','bold'); doc.setFontSize(15);
+    doc.text(String(r.name), 14, yy);
+    doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(108,114,147);
+    doc.text(r.date, 14, yy + 6);
+    doc.setFont('helvetica','bold'); doc.setFontSize(20); doc.setTextColor(106,92,255);
+    doc.text(fmt(r.total) + ' / 50', pageW - 14, yy + 4, { align:'right' });
+    const pct = Math.round((r.total/50)*100);
+    doc.setFontSize(10); doc.setTextColor(108,114,147);
+    doc.text(pct + '%  ·  Grade ' + (pct>=80?'A':pct>=60?'B':pct>=40?'C':'D'), pageW - 14, yy + 11, { align:'right' });
+    yy += 20;
+
+    /* part bars */
+    partsInfo.forEach(info => {
+      const d = r.parts[info.p] || {got:0,max:0};
+      if (yy > 265){ doc.addPage(); yy = 20; }
+      doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(30,34,70);
+      doc.text(info.label, 16, yy);
+      doc.setFont('helvetica','bold');
+      doc.text(fmt(d.got) + '/' + d.max, pageW - 16, yy, { align:'right' });
+      const barX = 16, barY = yy + 2, barW = pageW - 32, barH = 2.3;
+      doc.setFillColor(238,236,251);
+      doc.roundedRect(barX, barY, barW, barH, 1.2, 1.2, 'F');
+      const w = d.max ? Math.max(2, (d.got/d.max)*barW) : 2;
+      doc.setFillColor(106,92,255);
+      doc.roundedRect(barX, barY, w, barH, 1.2, 1.2, 'F');
+      yy += 8;
+    });
+
+    /* wrong answers */
+    const wrongs = r.answers.filter(a => !a.correct);
+    yy += 3;
+    if (yy > 255){ doc.addPage(); yy = 20; }
+    doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(180,35,24);
+    doc.text('Wrong Answers (' + wrongs.length + ')', 14, yy); yy += 6;
+
+    if (!wrongs.length){
+      doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(11,107,65);
+      doc.text('Perfect! All answers are correct.', 16, yy); yy += 6;
+    } else {
+      wrongs.forEach(a => {
+        const lines1 = doc.splitTextToSize('Q' + a.no + ' (Part ' + a.part + '): ' + a.prompt, pageW - 32);
+        const lines2 = doc.splitTextToSize('Student: ' + String(a.yourAns), pageW - 32);
+        const lines3 = doc.splitTextToSize('Correct: ' + String(a.correctAnswer), pageW - 32);
+        const blockH = (lines1.length + lines2.length + lines3.length) * 4.3 + 6;
+        if (yy + blockH > 280){ doc.addPage(); yy = 20; }
+
+        doc.setDrawColor(255,213,213); doc.setFillColor(255,245,245);
+        doc.roundedRect(14, yy - 3, pageW - 28, blockH, 2, 2, 'FD');
+        doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(30,34,70);
+        doc.text(lines1, 18, yy + 2); yy += lines1.length * 4.3 + 1;
+        doc.setFont('helvetica','normal'); doc.setTextColor(180,35,24);
+        doc.text(lines2, 18, yy + 2); yy += lines2.length * 4.3 + 1;
+        doc.setFont('helvetica','bold'); doc.setTextColor(11,107,65);
+        doc.text(lines3, 18, yy + 2); yy += lines3.length * 4.3 + 5;
+      });
+    }
+  });
+
+  /* Footers */
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++){
+    doc.setPage(i);
+    doc.setFontSize(8.5); doc.setTextColor(120,125,150);
+    doc.text('Page ' + i + ' of ' + pageCount, pageW - 14, 290, { align:'right' });
+    doc.text('PASA Y3 English 2026', 14, 290);
+  }
+
+  doc.save('PASA_Y3_English_AllStudents.pdf');
+});
+
+/* =========================================================
+   PRINT / RESTART (student)
+   ========================================================= */
+$('againBtn').addEventListener('click', () => {
+  state.idx = 0; state.sel = {}; state.textAns = {}; state.picked = {}; state.results = {}; state.checked = false;
+  state.picked = [];
+  updateScorePill();
+  showScreen('quizScreen');
+  renderQuestion();
+});
+$('printBtn').addEventListener('click', () => window.print());
+
+/* =========================================================
+   KEYBOARD SHORTCUTS
+   ========================================================= */
+document.addEventListener('keydown', e => {
+  if ($('quizScreen').classList.contains('hidden')) return;
+  const q = QUESTIONS[state.idx];
+  if (q.type === 'mcq' && !state.checked){
+    const n = parseInt(e.key,10);
+    if (n >= 1 && n <= q.options.length){
+      const btn = $('optionsBox').querySelector('.opt[data-i="'+(n-1)+'"]');
+      if (btn) btn.click();
+    }
+  }
+  if (e.key === 'Enter'){
+    const btn = $('actionBtn');
+    if (!btn.disabled){ e.preventDefault(); btn.click(); }
+  }
+});
+</script>
+</body>
+</html>
